@@ -2,19 +2,23 @@
   "name": "stayhub",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
+    "dev": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "StayHub Team",
   "license": "ISC",
   "dependencies": {
     "argon2": "^0.41.1",
     "cors": "^2.8.5",
     "express": "^4.21.1",
+    "http": "^0.0.1-security",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.9.0",
-    "mongoose": "^8.7.1"
+    "mongoose": "^8.7.1",
+    "nodemon": "^3.1.7",
+    "validator": "^13.12.0"
   }
 }
