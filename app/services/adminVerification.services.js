@@ -35,7 +35,7 @@ function sendVerificationEmail(email, userName, uniqueString) {
         <div style="font-family: Arial, sans-serif; line-height: 1.6;">
           <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9;">
             <div style="text-align: center;">
-              <img src="https://www.git-id.com/images/logo_git.png" alt="GIT Logo" style="max-width: 75px;"/>
+              <a href="https://ibb.co.com/rxgRDYd"><img src="https://i.ibb.co.com/rxgRDYd/Stay-Hub-Logo.png" alt="StayHub-Logo" style="max-width: 100x;"></a>
             </div>
             <p style="color: #333;">
               Hello <b>${userName}</b>,
@@ -52,7 +52,7 @@ function sendVerificationEmail(email, userName, uniqueString) {
               If you did not create an account, please ignore this email.
             </p>
             <p style="color: #333;">Best regards,<br/>
-              <b>Ganesha Inovasi Teknologi Team</b>
+              <b>StayHub Team</b>
             </p>
           </div>
         </div>`,
