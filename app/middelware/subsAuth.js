@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const Admin = require("../models/admin.models");
+const Admin = require("../models/admin/admin.models");
 
 // Middleware to check authentication
 function auth(req, res, next) {
