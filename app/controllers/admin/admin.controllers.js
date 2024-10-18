@@ -1,9 +1,9 @@
-const Admin = require("../models/admin.models");
-const AdminVerification = require("../models/adminVerification");
-const sendVerificationEmail = require("../services/adminVerification.services");
-const AdminPasswordReset = require("../models/adminPassReset.models");
-const sendResetPasswordEmail = require("../services/adminPassReset.services");
-const response = require("../config/response");
+const Admin = require("../../models/admin/admin.models");
+const AdminVerification = require("../../models/admin/adminVerification");
+const sendVerificationEmail = require("../../services/admin/adminVerification.services");
+const AdminPasswordReset = require("../../models/admin/adminPassReset.models");
+const sendResetPasswordEmail = require("../../services/admin/adminPassReset.services");
+const response = require("../../config/response");
 const { v4: uuidv4 } = require("uuid");
 const jwt = require("jsonwebtoken");
 const argon2 = require("argon2");
