@@ -52,7 +52,7 @@ function sendVerificationEmail(email, userName, uniqueString) {
               If you did not create an account, please ignore this email.
             </p>
             <p style="color: #333;">Best regards,<br/>
-              <b>Ganesha Inovasi Teknologi Team</b>
+              <b>StayHub Team</b>
             </p>
           </div>
         </div>`,

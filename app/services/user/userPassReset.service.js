@@ -52,7 +52,7 @@ function sendResetPasswordEmail(email, userName, resetToken) {
               If you did not request a password reset, please ignore this email.
             </p>
             <p style="color: #333;">Best regards,<br/>
-              <b>Ganesha Inovasi Teknologi Team</b>
+              <b>StayHub Team</b>
             </p>
           </div>
         </div>
