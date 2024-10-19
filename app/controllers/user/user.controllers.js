@@ -1,9 +1,9 @@
-const User = require("../models/user/user.models");
-const UserVerification = require("../models/user/userVerification");
-const sendVerificationEmail = require("../services/user/userVerification.services");
-const UserPasswordReset = require("../models/user/userPassReset.models");
-const sendResetPasswordEmail = require("../services/user/userPassReset.services");
-const response = require("../config/response");
+const User = require("../../models/user/user.models");
+const UserVerification = require("../../models/user/userVerification");
+const sendVerificationEmail = require("../../services/user/userVerification.service");
+const UserPasswordReset = require("../../models/user/userPassReset.models");
+const sendResetPasswordEmail = require("../../services/user/userPassReset.service");
+const response = require("../../config/response");
 const { google } = require("googleapis");
 const { v4: uuidv4 } = require("uuid");
 const jwt = require("jsonwebtoken");
