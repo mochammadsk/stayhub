@@ -5,7 +5,7 @@ const adminSchema = new mongoose.Schema(
   {
     userName: { type: String, required: true },
     email: { type: String, required: true },
-    role: { type: Number, default: 1 },
+    role: { type: String, default: "admin" },
     password: { type: String, required: true },
     verified: { type: Boolean, default: false },
   },
