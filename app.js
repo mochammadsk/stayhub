@@ -15,7 +15,10 @@ app.use(
     secret: "rahasia",
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false },
+    cookie: {
+      maxAge: 3600000,
+      secure: false,
+    },
   })
 );
 
