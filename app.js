@@ -15,6 +15,7 @@ app.use(
     secret: "rahasia",
     resave: false,
     saveUninitialized: true,
+    cookie: { secure: false },
   })
 );
 
