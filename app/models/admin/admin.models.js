@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
+const argon2 = require("argon2");
 
 const adminSchema = new mongoose.Schema(
   {
     userName: { type: String, required: true },
     email: { type: String, required: true },
-    role: { type: Number, default: 1 },
+    role: { type: String, default: "admin" },
     password: { type: String, required: true },
     verified: { type: Boolean, default: false },
   },
@@ -16,14 +16,13 @@ const adminSchema = new mongoose.Schema(
 
 adminSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-  next();
+  try {
+    this.password = await argon2.hash(this.password);
+    next();
+  } catch (err) {
+    next(err);
+  }
 });
-
-adminSchema.methods.matchPassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
-};
 
 adminSchema.method("toJSON", function () {
   const { __v, _id, ...object } = this.toObject();
