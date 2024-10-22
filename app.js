@@ -44,5 +44,6 @@ app.use(
 
 // Call routes
 require("./app/routes/admin.routes")(app);
+require("./app/routes/user.routes")(app);
 
 module.exports = app;
