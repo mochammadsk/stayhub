@@ -44,7 +44,7 @@ function sendResetPasswordEmail(email, userName, resetToken) {
               To reset your password, please click the link below
             </p>
             <div style="text-align: center; margin: 20px 0;">
-              <a href='http://localhost:8000/admin/forgot-password/${resetToken}' style="display: inline-block; padding: 10px 20px; color: #fff; background-color: #007BFF; border-radius: 5px; text-decoration: none;">
+              <a href='http://localhost:8000/user/forgot-password/${resetToken}' style="display: inline-block; padding: 10px 20px; color: #fff; background-color: #007BFF; border-radius: 5px; text-decoration: none;">
                 Reset Password
               </a>
             </div>

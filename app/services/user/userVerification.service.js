@@ -44,7 +44,7 @@ function sendVerificationEmail(email, userName, uniqueString) {
               Thank you for registering with us. To complete your registration, please verify your email address by clicking the link below
             </p>
             <div style="text-align: center; margin: 20px 0;">
-              <a href='http://localhost:8000/admin/verify/${uniqueString}' style="display: inline-block; padding: 10px 20px; color: #fff; background-color: #007BFF; border-radius: 5px; text-decoration: none;">
+              <a href='http://localhost:8000/user/verify/${uniqueString}' style="display: inline-block; padding: 10px 20px; color: #fff; background-color: #007BFF; border-radius: 5px; text-decoration: none;">
                 Verify Email
               </a>
             </div>

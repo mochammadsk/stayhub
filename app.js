@@ -15,6 +15,10 @@ app.use(
     secret: "rahasia",
     resave: false,
     saveUninitialized: true,
+    cookie: {
+      maxAge: 3600000,
+      secure: false,
+    },
   })
 );
 
@@ -40,5 +44,6 @@ app.use(
 
 // Call routes
 require("./app/routes/admin.routes")(app);
+require("./app/routes/user.routes")(app);
 
 module.exports = app;
