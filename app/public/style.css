@@ -1,0 +1,42 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 5%;
+  display: flex;
+}
+
+.container {
+  max-width: 400px;
+  margin: auto;
+}
+
+input {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-width: 0.5px;
+  border-radius: 5px;
+}
+
+button {
+  padding: 10px;
+  width: 100%;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 3px;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+.form {
+  display: none;
+}
+
+.active {
+  display: block;
+}
