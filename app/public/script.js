@@ -11,13 +11,11 @@ function showForm(formId) {
 async function handleRegister(event) {
   event.preventDefault();
 
-  const userName = document.getElementById("registerUserName").value;
   const fullName = document.getElementById("registerFullName").value;
   const email = document.getElementById("registerEmail").value;
   const password = document.getElementById("registerPassword").value;
 
   const data = {
-    userName,
     fullName,
     email,
     password,
@@ -50,7 +48,7 @@ async function handleRegister(event) {
 async function handleLogin(event) {
   event.preventDefault();
 
-  const userName = document.getElementById("loginUserName").value;
+  const email = document.getElementById("loginEmail").value;
   const password = document.getElementById("loginPassword").value;
 
   try {
@@ -59,7 +57,7 @@ async function handleLogin(event) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ userName, password }),
+      body: JSON.stringify({ email, password }),
     });
 
     if (!response.ok) {
