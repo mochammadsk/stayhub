@@ -54,7 +54,6 @@ async function handleLogin(event) {
   const password = document.getElementById("loginPassword").value;
 
   try {
-    // Mengirim permintaan POST ke backend untuk login
     const response = await fetch("http://localhost:8000/user/signin", {
       method: "POST",
       headers: {
@@ -63,22 +62,18 @@ async function handleLogin(event) {
       body: JSON.stringify({ userName, password }),
     });
 
-    // Mengecek respons dari server
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
 
     const result = await response.json();
 
-    // Memeriksa apakah login berhasil
     if (result.success) {
       console.log("Login successful:", result);
       alert("Login berhasil!");
 
-      // Tampilkan form reset password setelah login berhasil
       showForm("resetForm");
     } else {
-      // Jika login gagal
       alert(result.message || "Login gagal. Periksa kredensial Anda.");
     }
   } catch (error) {
