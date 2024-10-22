@@ -20,6 +20,16 @@ module.exports = (app) => {
   // Login account
   router.post("/signin", userService.handleLogin);
 
+  // Logout account
+  router.post("/logout", (req, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ message: "Logout failed!" });
+      }
+      res.status(200).json({ message: "Logged out successfully!" });
+    });
+  });
+
   // Password reset
   router.post("/forgot-password", (req, res) => {
     user.resetPassword(req, res);
