@@ -205,26 +205,26 @@ exports.login = async (data) => {
     // Find user based on username
     const user = await User.findOne({ userName: data.userName });
     if (!user) {
-      console.error("Username not found:", data.userName);
+      console.error(`${data.userName} not found`);
       throw new Error("Username not found!");
     }
 
     // Verify password
     const match = await argon2.verify(user.password, data.password);
     if (!match) {
-      console.error("Wrong password for userName:", data.userName);
+      console.error(`Wrong password for ${data.userName}`);
       throw new Error("Wrong password!");
     }
 
     // Check status account
     if (!user.verified) {
-      console.error("Email not verified for userName:", data.userName);
+      console.error(`Email not verified for ${data.userName}`);
       throw new Error("Email not verified!");
     }
 
     // Check status role
-    if (user.role !== 2) {
-      console.error("Unauthorized role for userName:", data.userName);
+    if (user.role !== "user") {
+      console.error(`Unauthorized role for ${data.userName}`);
       throw new Error("Unauthorized role!");
     }
 
@@ -235,7 +235,7 @@ exports.login = async (data) => {
       { expiresIn: "1h" }
     );
 
-    console.log("Login successful for userName:", data.userName);
+    console.log(`Login successful for ${data.userName}`);
     return { message: "Login Successful", token };
   } catch (error) {
     console.error("Login error:", error.message);
