@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Authentication</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>User Authentication</h1>
+      <nav>
+        <button onclick="showForm('loginForm')">Login</button>
+        <button onclick="showForm('registerForm')">Register</button>
+        <button onclick="showForm('resetForm')">Reset Password</button>
+      </nav>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="form active" onsubmit="handleLogin(event)">
+        <h2>Login</h2>
+        <input
+          type="text"
+          id="loginUserName"
+          placeholder="User Name"
+          required
+        />
+        <input
+          type="password"
+          id="loginPassword"
+          placeholder="Password"
+          required
+        />
+        <button type="submit">Login</button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="registerForm" class="form" onsubmit="handleRegister(event)">
+        <h2>Register</h2>
+        <input
+          type="text"
+          id="registerUserName"
+          placeholder="User Name"
+          required
+        />
+        <input
+          type="text"
+          id="registerFullName"
+          placeholder="Full Name"
+          required
+        />
+        <input type="email" id="registerEmail" placeholder="Email" required />
+        <input
+          type="password"
+          id="registerPassword"
+          placeholder="Password"
+          required
+        />
+        <button type="submit">Register</button>
+      </form>
+
+      <!-- Reset Password Form -->
+      <form id="resetForm" class="form" onsubmit="handleReset(event)">
+        <h2>Reset Password</h2>
+        <input type="email" id="resetEmail" placeholder="Email" required />
+        <button type="submit">Reset Password</button>
+      </form>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
