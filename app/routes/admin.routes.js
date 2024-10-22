@@ -20,8 +20,8 @@ module.exports = (app) => {
     });
   });
 
-  // Show data
-  router.get("/list", auth, isAdmin, (req, res) => {
+  // Show data user
+  router.get("/list/user", auth, isAdmin, (req, res) => {
     admin.findAll(req, res);
   });
 

@@ -22,7 +22,7 @@ exports.login = async (data) => {
     }
 
     // Check status role
-    if (admin.role !== 1) {
+    if (admin.role !== "admin") {
       console.error("Unauthorized role for userName:", data.userName);
       throw new Error("Unauthorized role!");
     }
