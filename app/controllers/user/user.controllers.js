@@ -18,15 +18,13 @@ exports.register = (data) =>
   new Promise((resolve, reject) => {
     console.log("Starting registration process...");
 
-    // Check if userName or email already exists
+    // Check if email already exists
     User.findOne({
-      $or: [{ userName: data.userName }, { email: data.email }],
+      $or: [{ email: data.email }],
     })
       .then((user) => {
         if (user) {
-          if (user.userName === data.userName) {
-            reject(response.commonErrorMsg("Username already exists!"));
-          } else {
+          if (user.email === data.email) {
             reject(response.commonErrorMsg("Email already exists!"));
           }
         } else {
@@ -59,7 +57,7 @@ exports.register = (data) =>
                           // Send verification email
                           sendVerificationEmail(
                             createdUser.email,
-                            createdUser.userName,
+                            createdUser.fullName,
                             uniqueString
                           )
                             .then(() => {
@@ -202,29 +200,29 @@ exports.verifyEmail = (req, res) => {
 // Login account
 exports.login = async (data) => {
   try {
-    // Find user based on username
-    const user = await User.findOne({ userName: data.userName });
+    // Find user based on email
+    const user = await User.findOne({ email: data.email });
     if (!user) {
-      console.error(`${data.userName} not found`);
-      throw new Error("Username not found!");
+      console.error(`${data.email} not found`);
+      throw new Error("Email not found!");
     }
 
     // Verify password
     const match = await argon2.verify(user.password, data.password);
     if (!match) {
-      console.error(`Wrong password for ${data.userName}`);
+      console.error(`Wrong password for ${user.fullName}`);
       throw new Error("Wrong password!");
     }
 
     // Check status account
     if (!user.verified) {
-      console.error(`Email not verified for ${data.userName}`);
+      console.error(`Email not verified for ${user.email}`);
       throw new Error("Email not verified!");
     }
 
     // Check status role
     if (user.role !== "user") {
-      console.error(`Unauthorized role for ${data.userName}`);
+      console.error(`Unauthorized role for ${user.fullName}`);
       throw new Error("Unauthorized role!");
     }
 
@@ -235,7 +233,7 @@ exports.login = async (data) => {
       { expiresIn: "1h" }
     );
 
-    console.log(`Login successful for ${data.userName}`);
+    console.log(`Login successful for ${user.fullName}`);
     return { message: "Login Successful", token };
   } catch (error) {
     console.error("Login error:", error.message);
