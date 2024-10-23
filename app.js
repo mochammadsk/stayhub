@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const flash = require("connect-flash");
 const bodyParser = require("body-parser");
+const path = require("path");
 
 const app = express();
 
@@ -27,6 +28,10 @@ app.use(flash());
 app.use(express.json());
 app.use(cors(corsOption));
 app.use(express.urlencoded({ extended: true }));
+
+// Use EJS
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "app/views"));
 
 app.use(
   bodyParser.json({
