@@ -18,16 +18,14 @@ exports.register = (data) =>
   new Promise((resolve, reject) => {
     console.log("Starting registration process...");
 
-    // Check if userName or email already exists
+    // Check if email already exists
     User.findOne({
-      $or: [{ userName: data.userName }, { email: data.email }],
+      $or: [{ email: data.email }],
     })
       .then((user) => {
         if (user) {
-          if (user.userName === data.userName) {
-            reject(response.commonErrorMsg("Username already exists!"));
-          } else {
-            reject(response.commonErrorMsg("Email already exists!"));
+          if (user.email === data.email) {
+            return reject(console.log("Email already exists!"));
           }
         } else {
           console.log("User not found. Proceeding with registration...");
@@ -59,69 +57,41 @@ exports.register = (data) =>
                           // Send verification email
                           sendVerificationEmail(
                             createdUser.email,
-                            createdUser.userName,
+                            createdUser.fullName,
                             uniqueString
                           )
                             .then(() => {
-                              console.log(
-                                "Verification email sent successfully."
-                              );
-                              resolve(
-                                response.commonSuccessMsg(
-                                  "Successful registration! Please verify your email."
-                                )
-                              );
+                              resolve({
+                                message:
+                                  "Successful registration! Please verify your email.",
+                                user: createdUser,
+                              });
                             })
                             .catch((error) => {
-                              console.error(
-                                "Error sending verification email:",
-                                error
-                              );
-                              resolve(
-                                response.commonSuccessMsg(
-                                  "Successful registration! Verification email could not be sent."
-                                )
+                              reject(
+                                "Registration successful but verification email failed to send."
                               );
                             });
                         })
                         .catch((error) => {
-                          console.error(
-                            "Error saving user verification:",
-                            error
-                          );
-                          reject(
-                            response.commonErrorMsg(
-                              "Failed to save verification data!"
-                            )
-                          );
+                          reject("Failed to save verification data.");
                         });
                     })
                     .catch((error) => {
-                      console.error(
-                        "Error hashing verification string:",
-                        error
-                      );
-                      reject(
-                        response.commonErrorMsg(
-                          "Failed to hash verification string!"
-                        )
-                      );
+                      reject("Failed to hash verification string.", error);
                     });
                 })
                 .catch((error) => {
-                  console.error("Error creating user:", error);
-                  reject(response.commonErrorMsg("Registration failed!"));
+                  reject("User creation failed.", error);
                 });
             })
             .catch((error) => {
-              console.error("Error hashing password:", error);
-              reject(response.commonErrorMsg("Password hashing failed!"));
+              reject("Password hashing failed.", error);
             });
         }
       })
       .catch((error) => {
-        console.error("Error finding user:", error);
-        reject(response.commonErrorMsg("Failed to find user!"));
+        reject("Failed to find user.", error);
       });
   });
 
@@ -202,29 +172,29 @@ exports.verifyEmail = (req, res) => {
 // Login account
 exports.login = async (data) => {
   try {
-    // Find user based on username
-    const user = await User.findOne({ userName: data.userName });
+    // Find user based on email
+    const user = await User.findOne({ email: data.email });
     if (!user) {
-      console.error(`${data.userName} not found`);
-      throw new Error("Username not found!");
+      console.error(`${data.email} not found`);
+      throw new Error("Email not found!");
     }
 
     // Verify password
     const match = await argon2.verify(user.password, data.password);
     if (!match) {
-      console.error(`Wrong password for ${data.userName}`);
+      console.error(`Wrong password for ${user.fullName}`);
       throw new Error("Wrong password!");
     }
 
     // Check status account
     if (!user.verified) {
-      console.error(`Email not verified for ${data.userName}`);
+      console.error(`Email not verified for ${user.email}`);
       throw new Error("Email not verified!");
     }
 
     // Check status role
     if (user.role !== "user") {
-      console.error(`Unauthorized role for ${data.userName}`);
+      console.error(`Unauthorized role for ${user.fullName}`);
       throw new Error("Unauthorized role!");
     }
 
@@ -235,7 +205,7 @@ exports.login = async (data) => {
       { expiresIn: "1h" }
     );
 
-    console.log(`Login successful for ${data.userName}`);
+    console.log(`Login successful for ${user.fullName}`);
     return { message: "Login Successful", token };
   } catch (error) {
     console.error("Login error:", error.message);

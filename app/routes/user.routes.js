@@ -7,6 +7,10 @@ module.exports = (app) => {
   const router = require("express").Router();
 
   // Register account
+  router.get("/", (req, res) => {
+    res.render("register");
+  });
+
   router.post("/signup", validateRegistration, (req, res) => {
     const data = req.body;
     register(data)
@@ -21,7 +25,7 @@ module.exports = (app) => {
   router.post("/signin", userService.handleLogin);
 
   // Logout account
-  router.post("/logout", (req, res) => {
+  router.post("/logout/:id", (req, res) => {
     req.session.destroy((err) => {
       if (err) {
         return res.status(500).json({ message: "Logout failed!" });
@@ -40,8 +44,8 @@ module.exports = (app) => {
     user.verifyResetPassword(req, res);
   });
 
-  // Update data
-  router.put("/update/:id", auth, (req, res) => {
+  // Update profile data
+  router.put("/profile/update/:id", auth, (req, res) => {
     user.update(req, res);
   });
 
