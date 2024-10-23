@@ -156,46 +156,45 @@ exports.verifyEmail = (req, res) => {
 };
 
 // Login account
-exports.login = async (data) => {
+exports.signin = async (req, res) => {
   try {
+    const { email, password } = req.body;
+
     // Find user based on email
-    const user = await User.findOne({ email: data.email });
+    const user = await User.findOne({ email: email });
     if (!user) {
-      console.error(`${data.email} not found`);
+      console.error(`${email} not found`);
       throw new Error("Email not found!");
     }
 
     // Verify password
-    const match = await argon2.verify(user.password, data.password);
+    const match = await argon2.verify(user.password, password);
     if (!match) {
       console.error(`Wrong password for ${user.fullName}`);
       throw new Error("Wrong password!");
     }
 
-    // Check status account
-    if (!user.verified) {
-      console.error(`Email not verified for ${user.email}`);
-      throw new Error("Email not verified!");
-    }
-
     // Check status role
     if (user.role !== "user") {
-      console.error(`Unauthorized role for ${user.fullName}`);
+      console.error("Unauthorized role for:", user.fullName);
       throw new Error("Unauthorized role!");
     }
 
-    // Create JWT token
+    // Buat JWT token
     const token = jwt.sign(
       { userName: user.userName, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
 
-    console.log(`Login successful for ${user.fullName}`);
-    return { message: "Login Successful", token };
+    // Jika password cocok, simpan user di session
+    req.session.user = user;
+
+    console.log("Login successful for", user.fullName);
+    return { user };
   } catch (error) {
     console.error("Login error:", error.message);
-    throw new Error(error.message);
+    return res.status(400).json({ message: error.message });
   }
 };
 
