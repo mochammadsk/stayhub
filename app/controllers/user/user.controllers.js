@@ -3,7 +3,6 @@ const UserVerification = require("../../models/user/userVerification");
 const sendVerificationEmail = require("../../services/user/userVerification.service");
 const UserPasswordReset = require("../../models/user/userPassReset.models");
 const sendResetPasswordEmail = require("../../services/user/userPassReset.service");
-const response = require("../../config/response");
 const { google } = require("googleapis");
 const { v4: uuidv4 } = require("uuid");
 const jwt = require("jsonwebtoken");
@@ -105,9 +104,9 @@ exports.verifyEmail = (req, res) => {
         bcrypt.compare(uniqueString, record.uniqueString, (err, isMatch) => {
           if (err) {
             console.error("Error comparing unique strings:", err);
-            return res
-              .status(500)
-              .json(response.commonErrorMsg("Error verifying email"));
+            return res.status(500).json({
+              messages: "Error verifying email",
+            });
           }
           if (isMatch) {
             const { userId } = record;
@@ -115,101 +114,87 @@ exports.verifyEmail = (req, res) => {
               .then(() => {
                 UserVerification.deleteOne({ _id: record._id })
                   .then(() => {
-                    res
-                      .status(200)
-                      .json(
-                        response.commonSuccessMsg(
-                          "Email verified successfully!"
-                        )
-                      );
+                    res.status(200).json({
+                      messages: "Email verified successfully!",
+                    });
                   })
                   .catch((error) => {
-                    console.error("Error deleting verification record:", error);
-                    res
-                      .status(500)
-                      .json(
-                        response.commonErrorMsg(
-                          "Error deleting verification record"
-                        )
-                      );
+                    res.status(500).json(
+                      console.log({
+                        messages: "Error deleting verification record:",
+                        error,
+                      })
+                    );
                   });
               })
               .catch((error) => {
-                console.error(
-                  "Error updating user verification status:",
-                  error
+                res.status(500).json(
+                  console.log({
+                    messages: "Error updating user verification status:",
+                    error,
+                  })
                 );
-                res
-                  .status(500)
-                  .json(
-                    response.commonErrorMsg(
-                      "Error updating user verification status"
-                    )
-                  );
               });
           } else {
             res
               .status(400)
-              .json(
-                response.commonErrorMsg("Invalid or expired verification link")
-              );
+              .json({ messages: "Invalid or expired verification link" });
           }
         });
       } else {
         res
           .status(400)
-          .json(
-            response.commonErrorMsg("Invalid or expired verification link")
-          );
+          .json({ messages: "Invalid or expired verification link" });
       }
     })
     .catch((error) => {
-      console.error("Error verifying email:", error);
-      res.status(500).json(response.commonErrorMsg("Error verifying email"));
+      res.status(500).json({
+        error: "Error verifying email:",
+        error,
+      });
     });
 };
 
 // Login account
-exports.login = async (data) => {
+exports.signin = async (req, res) => {
   try {
+    const { email, password } = req.body;
+
     // Find user based on email
-    const user = await User.findOne({ email: data.email });
+    const user = await User.findOne({ email: email });
     if (!user) {
-      console.error(`${data.email} not found`);
+      console.error(`${email} not found`);
       throw new Error("Email not found!");
     }
 
     // Verify password
-    const match = await argon2.verify(user.password, data.password);
+    const match = await argon2.verify(user.password, password);
     if (!match) {
       console.error(`Wrong password for ${user.fullName}`);
       throw new Error("Wrong password!");
     }
 
-    // Check status account
-    if (!user.verified) {
-      console.error(`Email not verified for ${user.email}`);
-      throw new Error("Email not verified!");
-    }
-
     // Check status role
     if (user.role !== "user") {
-      console.error(`Unauthorized role for ${user.fullName}`);
+      console.error("Unauthorized role for:", user.fullName);
       throw new Error("Unauthorized role!");
     }
 
-    // Create JWT token
+    // Buat JWT token
     const token = jwt.sign(
       { userName: user.userName, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
 
-    console.log(`Login successful for ${user.fullName}`);
-    return { message: "Login Successful", token };
+    // Jika password cocok, simpan user di session
+    req.session.user = user;
+
+    console.log("Login successful for", user.fullName);
+    return { user };
   } catch (error) {
     console.error("Login error:", error.message);
-    throw new Error(error.message);
+    return res.status(400).json({ message: error.message });
   }
 };
 
