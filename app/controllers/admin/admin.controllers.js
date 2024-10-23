@@ -1,4 +1,5 @@
 const Admin = require("../../models/admin/admin.models");
+const User = require("../../models/user/user.models");
 const jwt = require("jsonwebtoken");
 const argon2 = require("argon2");
 const dotenv = require("dotenv");
@@ -42,17 +43,17 @@ exports.login = async (data) => {
   }
 };
 
-// Show data
+// Show data user
 exports.findAll = (req, res) => {
-  Admin.find()
+  User.find()
     .then((data) => res.send(data))
     .catch((err) => res.status(500).send({ message: err.message }));
 };
 
-exports.show = (req, res) => {
+exports.findOne = (req, res) => {
   const id = req.params.id;
 
-  Admin.findById(id)
+  User.findById(id)
     .then((data) => res.send(data))
     .catch((err) => res.status(500).send({ message: err.message }));
 };

@@ -25,7 +25,7 @@ module.exports = (app) => {
     admin.findAll(req, res);
   });
 
-  router.get("/list/:id", auth, isAdmin, (req, res) => {
+  router.get("/list/user/:id", auth, isAdmin, (req, res) => {
     admin.show(req, res);
   });
 

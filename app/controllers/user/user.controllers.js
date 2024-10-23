@@ -25,7 +25,7 @@ exports.register = (data) =>
       .then((user) => {
         if (user) {
           if (user.email === data.email) {
-            reject(response.commonErrorMsg("Email already exists!"));
+            return reject(console.log("Email already exists!"));
           }
         } else {
           console.log("User not found. Proceeding with registration...");
@@ -61,65 +61,37 @@ exports.register = (data) =>
                             uniqueString
                           )
                             .then(() => {
-                              console.log(
-                                "Verification email sent successfully."
-                              );
-                              resolve(
-                                response.commonSuccessMsg(
-                                  "Successful registration! Please verify your email."
-                                )
-                              );
+                              resolve({
+                                message:
+                                  "Successful registration! Please verify your email.",
+                                user: createdUser,
+                              });
                             })
                             .catch((error) => {
-                              console.error(
-                                "Error sending verification email:",
-                                error
-                              );
-                              resolve(
-                                response.commonSuccessMsg(
-                                  "Successful registration! Verification email could not be sent."
-                                )
+                              reject(
+                                "Registration successful but verification email failed to send."
                               );
                             });
                         })
                         .catch((error) => {
-                          console.error(
-                            "Error saving user verification:",
-                            error
-                          );
-                          reject(
-                            response.commonErrorMsg(
-                              "Failed to save verification data!"
-                            )
-                          );
+                          reject("Failed to save verification data.");
                         });
                     })
                     .catch((error) => {
-                      console.error(
-                        "Error hashing verification string:",
-                        error
-                      );
-                      reject(
-                        response.commonErrorMsg(
-                          "Failed to hash verification string!"
-                        )
-                      );
+                      reject("Failed to hash verification string.", error);
                     });
                 })
                 .catch((error) => {
-                  console.error("Error creating user:", error);
-                  reject(response.commonErrorMsg("Registration failed!"));
+                  reject("User creation failed.", error);
                 });
             })
             .catch((error) => {
-              console.error("Error hashing password:", error);
-              reject(response.commonErrorMsg("Password hashing failed!"));
+              reject("Password hashing failed.", error);
             });
         }
       })
       .catch((error) => {
-        console.error("Error finding user:", error);
-        reject(response.commonErrorMsg("Failed to find user!"));
+        reject("Failed to find user.", error);
       });
   });
 
