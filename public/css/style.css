@@ -1,0 +1,95 @@
+body {
+  display: block;
+  margin: 1em 2.5em;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header h1 {
+  background-color: yellow;
+  padding: 5px 10px;
+  border-radius: 10px;
+}
+
+header h1 a {
+  text-decoration: none;
+  color: black;
+}
+
+header h1 a:hover {
+  color: gray;
+}
+
+article {
+  text-align: justify;
+}
+
+.container {
+  background-color: aquamarine;
+  border-radius: 30px;
+  margin: 10px 500px;
+}
+
+.button {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.button button {
+  width: 100px;
+  height: 30px;
+  border-radius: 10px;
+  border-width: 1px;
+}
+
+.button button a {
+  text-decoration: none;
+  color: black;
+}
+
+.button button:hover {
+  background-color: gray;
+}
+
+.button-home {
+  display: flex;
+  gap: 10px;
+}
+
+.button-home button {
+  width: 100px;
+  height: 30px;
+  border-radius: 10px;
+  border-width: 1px;
+}
+
+.button-home button a {
+  text-decoration: none;
+  color: black;
+}
+
+.button-home button:hover {
+  background-color: gray;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+  margin: 0;
+}
+
+.form input {
+  border-radius: 3px;
+  border-width: 1px;
+  height: 20px;
+  width: 200px;
+}

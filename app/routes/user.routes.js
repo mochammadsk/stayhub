@@ -6,7 +6,6 @@ module.exports = (app) => {
   const { auth, isAdmin } = require("../middelware/subsAuth");
   const router = require("express").Router();
 
-  // Register account
   router.post("/signup", validateRegistration, (req, res) => {
     const data = req.body;
     register(data)
@@ -19,6 +18,13 @@ module.exports = (app) => {
 
   // Login account
   router.post("/signin", userService.handleLogin);
+
+  router.get("/dashboard", (req, res) => {
+    if (!req.session.user) {
+      return res.render("signin");
+    }
+    res.render("user/dashboard", { user: req.session.user });
+  });
 
   // Logout account
   router.post("/logout/:id", (req, res) => {

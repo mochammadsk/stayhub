@@ -23,7 +23,7 @@ function auth(req, res, next) {
 async function isAdmin(req, res, next) {
   try {
     const admin = await Admin.findOne({ userName: req.user.userName });
-    if (!admin || admin.role !== 1) {
+    if (!admin || admin.role !== "admin") {
       return res.status(403).send({ error: "Access denied." });
     }
     next();
