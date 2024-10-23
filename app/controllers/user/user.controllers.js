@@ -3,7 +3,6 @@ const UserVerification = require("../../models/user/userVerification");
 const sendVerificationEmail = require("../../services/user/userVerification.service");
 const UserPasswordReset = require("../../models/user/userPassReset.models");
 const sendResetPasswordEmail = require("../../services/user/userPassReset.service");
-const response = require("../../config/response");
 const { google } = require("googleapis");
 const { v4: uuidv4 } = require("uuid");
 const jwt = require("jsonwebtoken");
@@ -105,9 +104,9 @@ exports.verifyEmail = (req, res) => {
         bcrypt.compare(uniqueString, record.uniqueString, (err, isMatch) => {
           if (err) {
             console.error("Error comparing unique strings:", err);
-            return res
-              .status(500)
-              .json(response.commonErrorMsg("Error verifying email"));
+            return res.status(500).json({
+              messages: "Error verifying email",
+            });
           }
           if (isMatch) {
             const { userId } = record;
@@ -115,57 +114,44 @@ exports.verifyEmail = (req, res) => {
               .then(() => {
                 UserVerification.deleteOne({ _id: record._id })
                   .then(() => {
-                    res
-                      .status(200)
-                      .json(
-                        response.commonSuccessMsg(
-                          "Email verified successfully!"
-                        )
-                      );
+                    res.status(200).json({
+                      messages: "Email verified successfully!",
+                    });
                   })
                   .catch((error) => {
-                    console.error("Error deleting verification record:", error);
-                    res
-                      .status(500)
-                      .json(
-                        response.commonErrorMsg(
-                          "Error deleting verification record"
-                        )
-                      );
+                    res.status(500).json(
+                      console.log({
+                        messages: "Error deleting verification record:",
+                        error,
+                      })
+                    );
                   });
               })
               .catch((error) => {
-                console.error(
-                  "Error updating user verification status:",
-                  error
+                res.status(500).json(
+                  console.log({
+                    messages: "Error updating user verification status:",
+                    error,
+                  })
                 );
-                res
-                  .status(500)
-                  .json(
-                    response.commonErrorMsg(
-                      "Error updating user verification status"
-                    )
-                  );
               });
           } else {
             res
               .status(400)
-              .json(
-                response.commonErrorMsg("Invalid or expired verification link")
-              );
+              .json({ messages: "Invalid or expired verification link" });
           }
         });
       } else {
         res
           .status(400)
-          .json(
-            response.commonErrorMsg("Invalid or expired verification link")
-          );
+          .json({ messages: "Invalid or expired verification link" });
       }
     })
     .catch((error) => {
-      console.error("Error verifying email:", error);
-      res.status(500).json(response.commonErrorMsg("Error verifying email"));
+      res.status(500).json({
+        error: "Error verifying email:",
+        error,
+      });
     });
 };
 
