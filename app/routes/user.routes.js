@@ -7,6 +7,10 @@ module.exports = (app) => {
   const router = require("express").Router();
 
   // Register account
+  router.get("/", (req, res) => {
+    res.render("register");
+  });
+
   router.post("/signup", validateRegistration, (req, res) => {
     const data = req.body;
     register(data)
