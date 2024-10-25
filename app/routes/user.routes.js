@@ -3,7 +3,7 @@ module.exports = (app) => {
   const { register } = require("../controllers/user/user.controllers");
   const userService = require("../controllers/user/userAuth.controllers");
   const validateRegistration = require("../middelware/validateRegristation");
-  const { auth, isAdmin } = require("../middelware/subsAuth");
+  const { auth } = require("../middelware/auth.middleware");
   const router = require("express").Router();
 
   router.post("/signup", validateRegistration, (req, res) => {
@@ -52,7 +52,7 @@ module.exports = (app) => {
   });
 
   // Delete data
-  router.delete("/delete/:id", auth, isAdmin, (req, res) => {
+  router.delete("/delete/:id", auth, (req, res) => {
     user.delete(req, res);
   });
 
