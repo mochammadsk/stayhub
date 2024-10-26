@@ -19,13 +19,6 @@ module.exports = (app) => {
   // Login account
   router.post("/signin", userService.handleLogin);
 
-  router.get("/dashboard", (req, res) => {
-    if (!req.session.user) {
-      return res.render("signin");
-    }
-    res.render("user/dashboard", { user: req.session.user });
-  });
-
   // Logout account
   router.post("/logout/:id", (req, res) => {
     req.session.destroy((err) => {
@@ -60,5 +53,5 @@ module.exports = (app) => {
   router.get("/auth/google", user.googleAuthRedirect);
   router.get("/auth/google/callback", user.googleAuthCallback);
 
-  app.use("/user", router);
+  app.use("/", router);
 };
