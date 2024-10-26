@@ -3,7 +3,7 @@ module.exports = (app) => {
   const { register } = require("../controllers/user/user.controllers");
   const userService = require("../controllers/user/userAuth.controllers");
   const validateRegistration = require("../middelware/validateRegristation");
-  const { auth, isAdmin } = require("../middelware/subsAuth");
+  const { auth } = require("../middelware/auth.middleware");
   const router = require("express").Router();
 
   router.post("/signup", validateRegistration, (req, res) => {
@@ -18,13 +18,6 @@ module.exports = (app) => {
 
   // Login account
   router.post("/signin", userService.handleLogin);
-
-  router.get("/dashboard", (req, res) => {
-    if (!req.session.user) {
-      return res.render("signin");
-    }
-    res.render("user/dashboard", { user: req.session.user });
-  });
 
   // Logout account
   router.post("/logout/:id", (req, res) => {
@@ -52,7 +45,7 @@ module.exports = (app) => {
   });
 
   // Delete data
-  router.delete("/delete/:id", auth, isAdmin, (req, res) => {
+  router.delete("/delete/:id", auth, (req, res) => {
     user.delete(req, res);
   });
 
@@ -60,5 +53,5 @@ module.exports = (app) => {
   router.get("/auth/google", user.googleAuthRedirect);
   router.get("/auth/google/callback", user.googleAuthCallback);
 
-  app.use("/user", router);
+  app.use("/", router);
 };
