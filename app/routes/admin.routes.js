@@ -6,24 +6,18 @@ module.exports = (app) => {
 
   dotenv.config();
 
-  // Logout account
-  router.post("/logout", (req, res) => {
-    req.session.destroy((err) => {
-      if (err) {
-        return res.status(500).json({ message: "Logout failed!" });
-      }
-      res.status(200).json({ message: "Logged out successfully!" });
-    });
-  });
-
   // Show data user
-  router.get("/list/user", auth, (req, res) => {
+  router.get("/list/user", auth("admin"), (req, res) => {
     admin.findAll(req, res);
   });
 
-  router.get("/list/user/:id", auth, (req, res) => {
-    admin.show(req, res);
+  // Show data user by id
+  router.get("/list/user/:id", auth("admin"), (req, res) => {
+    admin.findOne(req, res);
   });
+
+  // Update role user
+  router.put("/update/user/:id", auth("admin"), admin.updateRole);
 
   // Update data
   router.put("/update/:id", auth, (req, res) => {
@@ -35,5 +29,5 @@ module.exports = (app) => {
     admin.delete(req, res);
   });
 
-  app.use("/admin", router);
+  app.use("/", router);
 };
