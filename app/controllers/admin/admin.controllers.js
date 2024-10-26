@@ -44,25 +44,11 @@ exports.updateRole = async (req, res) => {
   }
 };
 
-// Update data
-exports.update = (req, res) => {
-  const id = req.params.id;
-
-  Admin.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
-    .then((data) => {
-      if (!data) {
-        res.status(404).send({ message: "Data can't be updated!" });
-      }
-      res.send({ message: "Data updated successfully!" });
-    })
-    .catch((err) => res.status(500).send({ message: err.message }));
-};
-
-// Delete data
+// Delete user data
 exports.delete = (req, res) => {
   const id = req.params.id;
 
-  Admin.findOneAndDelete(id)
+  User.findOneAndDelete(id)
     .then((data) => {
       if (!data) {
         res.status(404).send({ message: "Data can't be deleted!" });
