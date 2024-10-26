@@ -1,10 +1,16 @@
 const jwt = require("jsonwebtoken");
 
+const blacklist = [];
 const auth = (role) => (req, res, next) => {
   const token = req.header("auth-token");
-  console.log("Received token:", token);
+  console.log("Token:", token);
 
-  if (!token) return res.status(401).send({ error: "Access denied." });
+  if (!token) return res.status(401).send({ error: "Access denied!" });
+
+  if (blacklist.includes(token)) {
+    console.log(blacklist);
+    return res.status(403).send({ message: "Token has been blacklisted!" });
+  }
 
   try {
     const verified = jwt.verify(token, process.env.JWT_SECRET);
@@ -21,4 +27,4 @@ const auth = (role) => (req, res, next) => {
   }
 };
 
-module.exports = { auth };
+module.exports = { auth, blacklist };

@@ -1,6 +1,8 @@
 module.exports = (app) => {
   const router = require("express").Router();
   const auth = require("../controllers/auth/login.controllers");
+  const { blacklist } = require("../middelware/auth.middleware");
+
   router.get("/signup", (req, res) => {
     res.render("signup");
   });
@@ -18,7 +20,12 @@ module.exports = (app) => {
   });
 
   router.post("/logout", (req, res) => {
-    res.header("auth-token", "").json({ message: "Logout successful" });
+    const token = req.header("auth-token");
+
+    if (!token) return res.status(401).json({ error: "Token not found" });
+
+    blacklist.push(token);
+    res.status(200).json({ message: "Logout successful" });
   });
 
   app.use("/", router);
