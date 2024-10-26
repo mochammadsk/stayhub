@@ -17,5 +17,9 @@ module.exports = (app) => {
     }
   });
 
+  router.post("/logout", (req, res) => {
+    res.header("auth-token", "").json({ message: "Logout successful" });
+  });
+
   app.use("/", router);
 };
