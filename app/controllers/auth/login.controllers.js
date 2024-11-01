@@ -6,22 +6,20 @@ const argon2 = require("argon2");
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const admin = await Admin.findOne({ email });
 
-    let user;
-    if (!admin) {
-      user = await User.findOne({ email });
-    } else if (!user && !admin) {
-      return res.status(400).json("Email not found!");
+    const admin = await Admin.findOne({ email });
+    const user = !admin ? await User.findOne({ email }) : null;
+
+    if (!user && !admin) {
+      return res.status(400).send({ message: "Email not found" });
     }
 
     const match = admin
       ? await argon2.verify(admin.password, password)
-      : user
-      ? await argon2.verify(user.password, password)
-      : false;
+      : await argon2.verify(user.password, password);
+
     if (!match) {
-      return res.status(400).json({ message: "Wrong password!" });
+      return res.status(400).send({ message: "Wrong password!" });
     }
 
     const token = jwt.sign(
@@ -34,8 +32,9 @@ exports.login = async (req, res) => {
     );
 
     return res
-      .header("auth-token", token)
-      .json({ messages: "Login Successful", token });
+      .header(`Authorization`, `Bearer ${token}`)
+      .status(200)
+      .send({ messages: "Login Succesful!", token });
   } catch (error) {
     res.status(400).send(error);
   }
