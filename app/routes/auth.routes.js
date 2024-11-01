@@ -7,17 +7,17 @@ module.exports = (app) => {
     try {
       await auth.login(req, res);
     } catch (error) {
-      res.status(400).json({ messages: error.message });
+      res.status(400).send({ messages: error.message });
     }
   });
 
   router.post("/logout", (req, res) => {
     const token = req.header("auth-token");
 
-    if (!token) return res.status(401).json({ error: "Token not found" });
+    if (!token) return res.status(401).send({ error: "Token not found" });
 
     blacklist.push(token);
-    res.status(200).json({ message: "Logout successful" });
+    res.status(200).send({ message: "Logout successful" });
   });
 
   app.use("/", router);

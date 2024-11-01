@@ -17,12 +17,12 @@ const auth = (role) => (req, res, next) => {
     req.user = verified;
 
     if (req.user.role !== role) {
-      return res.status(403).json({ messages: "Unauthorized access!" });
+      return res.status(403).send({ messages: "Unauthorized access!" });
     }
 
     next();
   } catch (error) {
-    res.status(400).json({ message: "Invalid Token" });
+    res.status(400).send({ message: "Invalid Token" });
   }
 };
 
