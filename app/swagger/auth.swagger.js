@@ -4,17 +4,25 @@
  *   post:
  *     tags:
  *       - Auth
- *     security:
- *       -bearerAuth: []
+ *     summary: Login user
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: "#/components/schemas/Admin"
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: "admin@email.com"
+ *                 required: true
+ *               password:
+ *                 type: string
+ *                 example: "admin123"
+ *                 required: true
  *     responses:
  *       200:
- *         description: Login Successful
+ *         description: Login Successful!
  *       404:
- *         description: Login Failed
+ *         description: Login Failed!
  */
