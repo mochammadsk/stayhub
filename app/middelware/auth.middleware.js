@@ -2,10 +2,10 @@ const jwt = require("jsonwebtoken");
 
 const blacklist = [];
 const auth = (role) => (req, res, next) => {
-  const token = req.header("auth-token");
-  console.log("Token:", token);
+  const token =
+    req.header("Authorization") && req.header("Authorization").split(" ")[1];
 
-  if (!token) return res.status(401).send({ error: "Access denied!" });
+  if (!token) return res.status(401).send({ message: "Unauthorized!" });
 
   if (blacklist.includes(token)) {
     console.log(blacklist);
@@ -14,16 +14,15 @@ const auth = (role) => (req, res, next) => {
 
   try {
     const verified = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("Verified token:", verified);
     req.user = verified;
 
     if (req.user.role !== role) {
-      return res.status(403).json({ messages: "Unauthorized access" });
+      return res.status(403).json({ messages: "Unauthorized access!" });
     }
 
     next();
   } catch (error) {
-    res.status(400).json({ error: "Invalid Token" });
+    res.status(400).json({ message: "Invalid Token" });
   }
 };
 

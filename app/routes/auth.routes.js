@@ -3,14 +3,6 @@ module.exports = (app) => {
   const auth = require("../controllers/auth/login.controllers");
   const { blacklist } = require("../middelware/auth.middleware");
 
-  router.get("/signup", (req, res) => {
-    res.render("signup");
-  });
-
-  router.get("/signin", (req, res) => {
-    res.render("signin");
-  });
-
   router.post("/signin", async (req, res) => {
     try {
       await auth.login(req, res);
