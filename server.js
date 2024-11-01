@@ -1,5 +1,5 @@
-const app = require("./app");
-const db = require("./app/config/database");
+const app = require("./app.js");
+const db = require("./config/database");
 const mongoose = require("mongoose");
 const http = require("http");
 
