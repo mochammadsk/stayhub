@@ -1,3 +1,5 @@
+const schema = require("../swagger/shema.swagger");
+
 const swaggerConfig = {
   swaggerDefinition: {
     openapi: "3.0.0",
@@ -20,11 +22,11 @@ const swaggerConfig = {
         },
       },
       schemas: {
-        Admin: require("../models/admin/admin.models"),
+        components: schema.components,
       },
     },
   },
-  apis: ["app/routes/*.js", "./app/swagger/*.js"],
+  apis: ["./app/routes/*.js", "./app/swagger/*.js"],
 };
 
 module.exports = swaggerConfig;
