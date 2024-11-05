@@ -13,7 +13,7 @@ module.exports = (app) => {
 
   // Show data user by id
   router.get('/list/user/:id', auth('admin'), (req, res) => {
-    admin.findOne(req, res);
+    admin.findById(req, res);
   });
 
   // Update role user
