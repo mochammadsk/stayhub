@@ -1,4 +1,4 @@
-const Room = require("../models/room.models");
+const Room = require('../models/room.model');
 
 exports.findAll = (req, res) => {
   Room.find()
@@ -22,7 +22,7 @@ exports.createRoom = async (req, res) => {
 
     const existingRoom = await Room.findOne({ name });
     if (existingRoom) {
-      return res.status(400).send({ message: "Room already exists" });
+      return res.status(400).send({ message: 'Room already exists' });
     }
 
     const room = new Room({
@@ -33,7 +33,7 @@ exports.createRoom = async (req, res) => {
     });
 
     await room.save();
-    res.status(200).send({ message: "Room created successfully", data: room });
+    res.status(200).send({ message: 'Room created successfully', data: room });
   } catch (error) {
     res.status(400).send({ message: error.message });
   }
@@ -48,7 +48,7 @@ exports.updateRoom = async (req, res) => {
       { type, name, cost },
       { new: true }
     );
-    res.status(200).send({ message: "Room updated!", room });
+    res.status(200).send({ message: 'Room updated!', room });
   } catch (error) {
     res.status(400).send(error);
   }
