@@ -1,7 +1,7 @@
-const Admin = require("../../models/admin/admin.models");
-const User = require("../../models/user/user.models");
-const jwt = require("jsonwebtoken");
-const argon2 = require("argon2");
+const Admin = require('../models/admin.model');
+const User = require('../models/user.model');
+const jwt = require('jsonwebtoken');
+const argon2 = require('argon2');
 
 exports.login = async (req, res) => {
   try {
@@ -11,7 +11,7 @@ exports.login = async (req, res) => {
     const user = !admin ? await User.findOne({ email }) : null;
 
     if (!user && !admin) {
-      return res.status(400).send({ message: "Email not found" });
+      return res.status(400).json({ message: 'Email not found' });
     }
 
     const match = admin
@@ -19,7 +19,7 @@ exports.login = async (req, res) => {
       : await argon2.verify(user.password, password);
 
     if (!match) {
-      return res.status(400).send({ message: "Wrong password!" });
+      return res.status(400).json({ message: 'Wrong password!' });
     }
 
     const token = jwt.sign(
@@ -28,14 +28,14 @@ exports.login = async (req, res) => {
         role: admin ? admin.role : user.role,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: '1h' }
     );
 
     return res
       .header(`Authorization`, `Bearer ${token}`)
       .status(200)
-      .send({ messages: "Login Succesful!", token });
+      .json({ messages: 'Login Succesful!', token });
   } catch (error) {
-    res.status(400).send(error);
+    res.status(500).json(error);
   }
 };
