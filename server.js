@@ -1,12 +1,12 @@
-const app = require("./app.js");
-const db = require("./app/config/database");
-const mongoose = require("mongoose");
-const http = require("http");
+const app = require('./app.js');
+const db = require('./src/config/database');
+const mongoose = require('mongoose');
+const http = require('http');
 
 // Connection to database
 mongoose
   .connect(db.url, db.mongooseConfig)
-  .then(() => console.log("Connected to database!"))
+  .then(() => console.log('Connected to database!'))
   .catch((err) => {
     console.log(`Failed to connect - ${err.message}`);
     process.exit();

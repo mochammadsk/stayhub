@@ -1,21 +1,21 @@
-const User = require("../../models/user/user.models");
-const UserVerification = require("../../models/user/userVerification");
-const sendVerificationEmail = require("../../services/user/userVerification.service");
-const UserPasswordReset = require("../../models/user/userPassReset.models");
-const sendResetPasswordEmail = require("../../services/user/userPassReset.service");
-const { google } = require("googleapis");
-const { v4: uuidv4 } = require("uuid");
-const jwt = require("jsonwebtoken");
-const argon2 = require("argon2");
-const bcrypt = require("bcrypt");
-const dotenv = require("dotenv");
+const User = require('../models/user.model');
+const UserVerification = require('../models/userVerification.model');
+const sendVerificationEmail = require('../services/userVerification.service');
+const UserPasswordReset = require('../models/userPassReset.model');
+const sendResetPasswordEmail = require('../services/userPassReset.service');
+const { google } = require('googleapis');
+const { v4: uuidv4 } = require('uuid');
+const jwt = require('jsonwebtoken');
+const argon2 = require('argon2');
+const bcrypt = require('bcrypt');
+const dotenv = require('dotenv');
 
 dotenv.config();
 
 // Register account
 exports.register = (data) =>
   new Promise((resolve, reject) => {
-    console.log("Starting registration process...");
+    console.log('Starting registration process...');
 
     // Check if email already exists
     User.findOne({
@@ -24,20 +24,20 @@ exports.register = (data) =>
       .then((user) => {
         if (user) {
           if (user.email === data.email) {
-            return reject(console.log("Email already exists!"));
+            return reject(console.log('Email already exists!'));
           }
         } else {
-          console.log("User not found. Proceeding with registration...");
+          console.log('User not found. Proceeding with registration...');
 
           // Hash password
           argon2
             .hash(data.password)
             .then((hash) => {
-              console.log("Password hashed successfully.");
+              console.log('Password hashed successfully.');
               data.password = hash;
               User.create(data)
                 .then((createdUser) => {
-                  console.log("User created successfully:", createdUser);
+                  console.log('User created successfully:', createdUser);
 
                   // Create verification token
                   const uniqueString = uuidv4() + createdUser._id;
@@ -62,35 +62,35 @@ exports.register = (data) =>
                             .then(() => {
                               resolve({
                                 message:
-                                  "Successful registration! Please verify your email.",
+                                  'Successful registration! Please verify your email.',
                                 user: createdUser,
                               });
                             })
                             .catch((error) => {
                               reject(
-                                "Registration successful but verification email failed to send."
+                                'Registration successful but verification email failed to send.'
                               );
                             });
                         })
                         .catch((error) => {
-                          reject("Failed to save verification data.");
+                          reject('Failed to save verification data.');
                         });
                     })
                     .catch((error) => {
-                      reject("Failed to hash verification string.", error);
+                      reject('Failed to hash verification string.', error);
                     });
                 })
                 .catch((error) => {
-                  reject("User creation failed.", error);
+                  reject('User creation failed.', error);
                 });
             })
             .catch((error) => {
-              reject("Password hashing failed.", error);
+              reject('Password hashing failed.', error);
             });
         }
       })
       .catch((error) => {
-        reject("Failed to find user.", error);
+        reject('Failed to find user.', error);
       });
   });
 
@@ -103,9 +103,9 @@ exports.verifyEmail = (req, res) => {
       if (record) {
         bcrypt.compare(uniqueString, record.uniqueString, (err, isMatch) => {
           if (err) {
-            console.error("Error comparing unique strings:", err);
+            console.error('Error comparing unique strings:', err);
             return res.status(500).json({
-              messages: "Error verifying email",
+              messages: 'Error verifying email',
             });
           }
           if (isMatch) {
@@ -115,13 +115,13 @@ exports.verifyEmail = (req, res) => {
                 UserVerification.deleteOne({ _id: record._id })
                   .then(() => {
                     res.status(200).json({
-                      messages: "Email verified successfully!",
+                      messages: 'Email verified successfully!',
                     });
                   })
                   .catch((error) => {
                     res.status(500).json(
                       console.log({
-                        messages: "Error deleting verification record:",
+                        messages: 'Error deleting verification record:',
                         error,
                       })
                     );
@@ -130,7 +130,7 @@ exports.verifyEmail = (req, res) => {
               .catch((error) => {
                 res.status(500).json(
                   console.log({
-                    messages: "Error updating user verification status:",
+                    messages: 'Error updating user verification status:',
                     error,
                   })
                 );
@@ -138,18 +138,18 @@ exports.verifyEmail = (req, res) => {
           } else {
             res
               .status(400)
-              .json({ messages: "Invalid or expired verification link" });
+              .json({ messages: 'Invalid or expired verification link' });
           }
         });
       } else {
         res
           .status(400)
-          .json({ messages: "Invalid or expired verification link" });
+          .json({ messages: 'Invalid or expired verification link' });
       }
     })
     .catch((error) => {
       res.status(500).json({
-        error: "Error verifying email:",
+        error: 'Error verifying email:',
         error,
       });
     });
@@ -164,36 +164,36 @@ exports.signin = async (req, res) => {
     const user = await User.findOne({ email: email });
     if (!user) {
       console.error(`${email} not found`);
-      throw new Error("Email not found!");
+      throw new Error('Email not found!');
     }
 
     // Verify password
     const match = await argon2.verify(user.password, password);
     if (!match) {
       console.error(`Wrong password for ${user.fullName}`);
-      throw new Error("Wrong password!");
+      throw new Error('Wrong password!');
     }
 
     // Check status role
-    if (user.role !== "user") {
-      console.error("Unauthorized role for:", user.fullName);
-      throw new Error("Unauthorized role!");
+    if (user.role !== 'user') {
+      console.error('Unauthorized role for:', user.fullName);
+      throw new Error('Unauthorized role!');
     }
 
     // Buat JWT token
     const token = jwt.sign(
       { userName: user.userName, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: '1h' }
     );
 
     // Jika password cocok, simpan user di session
     req.session.user = user;
 
-    console.log("Login successful for", user.fullName);
+    console.log('Login successful for', user.fullName);
     return { user };
   } catch (error) {
-    console.error("Login error:", error.message);
+    console.error('Login error:', error.message);
     return res.status(400).json({ message: error.message });
   }
 };
@@ -207,7 +207,7 @@ exports.resetPassword = (req, res) => {
       if (!user) {
         return res
           .status(404)
-          .json({ error: true, messages: "User not found" });
+          .json({ error: true, messages: 'User not found' });
       }
 
       const resetToken = uuidv4();
@@ -228,27 +228,27 @@ exports.resetPassword = (req, res) => {
             .then(() => {
               res
                 .status(200)
-                .json({ error: false, messages: "Password reset email sent" });
+                .json({ error: false, messages: 'Password reset email sent' });
             })
             .catch((error) => {
-              console.error("Error sending reset email:", error);
+              console.error('Error sending reset email:', error);
               res
                 .status(500)
-                .json({ error: true, messages: "Error sending reset email" });
+                .json({ error: true, messages: 'Error sending reset email' });
             });
         })
         .catch((error) => {
-          console.error("Error saving password reset record:", error);
+          console.error('Error saving password reset record:', error);
           res
             .status(500)
-            .json({ error: true, messages: "Error processing reset request" });
+            .json({ error: true, messages: 'Error processing reset request' });
         });
     })
     .catch((error) => {
-      console.error("Error finding user:", error);
+      console.error('Error finding user:', error);
       res
         .status(500)
-        .json({ error: true, messages: "Error processing reset request" });
+        .json({ error: true, messages: 'Error processing reset request' });
     });
 };
 
@@ -265,7 +265,7 @@ exports.verifyResetPassword = (req, res) => {
       if (!passwordReset) {
         return res
           .status(400)
-          .json({ error: true, messages: "Invalid reset token" });
+          .json({ error: true, messages: 'Invalid reset token' });
       }
 
       const { userId, expiresAt } = passwordReset;
@@ -273,7 +273,7 @@ exports.verifyResetPassword = (req, res) => {
       if (expiresAt < Date.now()) {
         return res
           .status(400)
-          .json({ error: true, messages: "Reset token has expired" });
+          .json({ error: true, messages: 'Reset token has expired' });
       }
 
       // Update user password
@@ -282,7 +282,7 @@ exports.verifyResetPassword = (req, res) => {
           if (!user) {
             return res
               .status(400)
-              .json({ error: true, messages: "User not found" });
+              .json({ error: true, messages: 'User not found' });
           }
 
           // Hash new password
@@ -298,47 +298,47 @@ exports.verifyResetPassword = (req, res) => {
                     .then(() => {
                       res.status(200).json({
                         success: true,
-                        messages: "Password reset successfully",
+                        messages: 'Password reset successfully',
                       });
                     })
                     .catch((error) => {
                       console.error(
-                        "Error deleting password reset token:",
+                        'Error deleting password reset token:',
                         error
                       );
                       res.status(500).json({
                         error: true,
-                        messages: "Failed to reset password",
+                        messages: 'Failed to reset password',
                       });
                     });
                 })
                 .catch((error) => {
-                  console.error("Error saving new password:", error);
+                  console.error('Error saving new password:', error);
                   res.status(500).json({
                     error: true,
-                    messages: "Failed to reset password",
+                    messages: 'Failed to reset password',
                   });
                 });
             })
             .catch((error) => {
-              console.error("Error hashing new password:", error);
+              console.error('Error hashing new password:', error);
               res
                 .status(500)
-                .json({ error: true, messages: "Failed to reset password" });
+                .json({ error: true, messages: 'Failed to reset password' });
             });
         })
         .catch((error) => {
-          console.error("Error finding user:", error);
+          console.error('Error finding user:', error);
           res
             .status(500)
-            .json({ error: true, messages: "Failed to reset password" });
+            .json({ error: true, messages: 'Failed to reset password' });
         });
     })
     .catch((error) => {
-      console.error("Error finding password reset token:", error);
+      console.error('Error finding password reset token:', error);
       res
         .status(500)
-        .json({ error: true, messages: "Failed to reset password" });
+        .json({ error: true, messages: 'Failed to reset password' });
     });
 };
 
@@ -351,7 +351,7 @@ exports.update = (req, res) => {
       if (!data) {
         res.status(404).send({ messages: "Data can't be updated!" });
       }
-      res.send({ messages: "Data updated successfully!" });
+      res.send({ messages: 'Data updated successfully!' });
     })
     .catch((err) => res.status(500).send({ messages: err.messages }));
 };
@@ -365,7 +365,7 @@ exports.delete = (req, res) => {
       if (!data) {
         res.status(404).send({ messages: "Data can't be deleted!" });
       }
-      res.send({ messages: "Data deleted successfully!" });
+      res.send({ messages: 'Data deleted successfully!' });
     })
     .catch((err) => res.status(500).send({ messages: err.messages }));
 };
@@ -375,15 +375,15 @@ const OAuth2 = google.auth.OAuth2;
 const oauth2Client = new OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
-  "http://localhost:8000/user/auth/google/callback"
+  'http://localhost:8000/user/auth/google/callback'
 );
 
 exports.googleAuthRedirect = (req, res) => {
   const authUrl = oauth2Client.generateAuthUrl({
-    access_type: "offline",
+    access_type: 'offline',
     scope: [
-      "https://www.googleapis.com/auth/userinfo.profile",
-      "https://www.googleapis.com/auth/userinfo.email",
+      'https://www.googleapis.com/auth/userinfo.profile',
+      'https://www.googleapis.com/auth/userinfo.email',
     ],
     include_granted_scopes: true,
   });
@@ -396,7 +396,7 @@ exports.googleAuthCallback = async (req, res) => {
     const { tokens } = await oauth2Client.getToken(code);
     oauth2Client.setCredentials(tokens);
     const userInfo = await google
-      .oauth2({ version: "v2", auth: oauth2Client })
+      .oauth2({ version: 'v2', auth: oauth2Client })
       .userinfo.get();
 
     // Simpan informasi pengguna ke dalam database
@@ -406,15 +406,15 @@ exports.googleAuthCallback = async (req, res) => {
       { upsert: true, new: true } // Untuk membuat entri baru jika tidak ditemukan
     )
       .then((user) => {
-        console.log("User Info:", user);
-        res.send("Authentication successful!");
+        console.log('User Info:', user);
+        res.send('Authentication successful!');
       })
       .catch((error) => {
-        console.error("Error:", error);
-        res.status(500).send("Failed to save user data!");
+        console.error('Error:', error);
+        res.status(500).send('Failed to save user data!');
       });
   } catch (error) {
-    console.error("Error:", error);
-    res.status(500).send("Authentication failed!");
+    console.error('Error:', error);
+    res.status(500).send('Authentication failed!');
   }
 };
