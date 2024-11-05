@@ -1,6 +1,6 @@
-const Admin = require("../../models/admin/admin.models");
-const User = require("../../models/user/user.models");
-const dotenv = require("dotenv");
+const Admin = require('../models/admin.model');
+const User = require('../models/user.model');
+const dotenv = require('dotenv');
 
 dotenv.config();
 
@@ -33,12 +33,12 @@ exports.updateRole = async (req, res) => {
     );
 
     if (!updateUser) {
-      return res.status(404).json({ message: "User not found!" });
+      return res.status(404).json({ message: 'User not found!' });
     }
 
     res
       .status(200)
-      .json({ message: "User updated successfully!", data: updateUser });
+      .json({ message: 'User updated successfully!', data: updateUser });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -53,7 +53,7 @@ exports.delete = (req, res) => {
       if (!data) {
         res.status(404).send({ message: "Data can't be deleted!" });
       }
-      res.send({ message: "Data deleted successfully!" });
+      res.send({ message: 'Data deleted successfully!' });
     })
     .catch((err) => res.status(500).send({ message: err.message }));
 };
