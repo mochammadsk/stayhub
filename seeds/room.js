@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Room = require('../src/models/room.models');
+const Room = require('../src/models/room.model');
 
 const roomData = [
   {
