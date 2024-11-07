@@ -1,5 +1,5 @@
-const nodemailer = require("nodemailer");
-const dotenv = require("dotenv");
+const nodemailer = require('nodemailer');
+const dotenv = require('dotenv');
 
 dotenv.config();
 
@@ -8,7 +8,7 @@ function sendVerificationEmail(email, userName, uniqueString) {
   return new Promise((resolve, reject) => {
     // Create reusable transporter object using SMTP transport
     let transporter = nodemailer.createTransport({
-      host: "smtp.zoho.com",
+      host: 'smtp.zoho.com',
       port: 587,
       secure: false,
       auth: {
@@ -21,7 +21,7 @@ function sendVerificationEmail(email, userName, uniqueString) {
       if (error) {
         console.log(error);
       } else {
-        console.log("User email register service:", success);
+        console.log('User email register service:', success);
       }
     });
 
@@ -30,7 +30,7 @@ function sendVerificationEmail(email, userName, uniqueString) {
       {
         from: `"noreply" <${process.env.AUTH_EMAIL}>`,
         to: email,
-        subject: "Account Verification",
+        subject: 'Account Verification',
         html: `
         <div style="font-family: Arial, sans-serif; line-height: 1.6;">
           <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9;">
@@ -44,7 +44,7 @@ function sendVerificationEmail(email, userName, uniqueString) {
               Thank you for registering with us. To complete your registration, please verify your email address by clicking the link below
             </p>
             <div style="text-align: center; margin: 20px 0;">
-              <a href='http://localhost:8000/user/verify/${uniqueString}' style="display: inline-block; padding: 10px 20px; color: #fff; background-color: #007BFF; border-radius: 5px; text-decoration: none;">
+              <a href='http://localhost:8000/auth/verify-email/${uniqueString}' style="display: inline-block; padding: 10px 20px; color: #fff; background-color: #007BFF; border-radius: 5px; text-decoration: none;">
                 Verify Email
               </a>
             </div>
