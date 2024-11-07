@@ -4,9 +4,11 @@ const jwt = require('jsonwebtoken');
 const argon2 = require('argon2');
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
-const sendVerificationEmail = require('../services/userVerification.service');
-const UserVerification = require('../models/userVerification.model');
 const { google } = require('googleapis');
+const UserVerification = require('../models/userVerification.model');
+const sendVerificationEmail = require('../services/userVerification.service');
+const UserPasswordReset = require('../models/userPassReset.model');
+const sendResetPasswordEmail = require('../services/userPassReset.service');
 
 // Register account for user
 exports.register = async (req, res) => {
@@ -130,7 +132,7 @@ const OAuth2 = google.auth.OAuth2;
 const oauth2Client = new OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
-  'http://localhost:8000/user/auth/google/callback'
+  'http://localhost:8000/auth/google/callback'
 );
 
 exports.googleAuthRedirect = (req, res) => {
@@ -150,26 +152,120 @@ exports.googleAuthCallback = async (req, res) => {
   try {
     const { tokens } = await oauth2Client.getToken(code);
     oauth2Client.setCredentials(tokens);
+
     const userInfo = await google
       .oauth2({ version: 'v2', auth: oauth2Client })
       .userinfo.get();
 
     // Simpan informasi pengguna ke dalam database
     User.findOneAndUpdate(
-      { email: userInfo.data.email, fullName: userInfo.data.name, role: 2 },
+      {
+        fullName: userInfo.data.name,
+        email: userInfo.data.email,
+        role: 'user',
+        verified: true,
+      },
       userInfo.data,
-      { upsert: true, new: true } // Untuk membuat entri baru jika tidak ditemukan
+      { upsert: true, new: true }
     )
       .then((user) => {
         console.log('User Info:', user);
-        res.send('Authentication successful!');
+        res.json('Authentication successful!');
       })
       .catch((error) => {
         console.error('Error:', error);
-        res.status(500).send('Failed to save user data!');
+        res.status(500).json('Failed to save user data!');
       });
   } catch (error) {
     console.error('Error:', error);
-    res.status(500).send('Authentication failed!');
+    res.status(500).json('Authentication failed!');
+  }
+};
+
+// Password reset
+exports.resetPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ error: true, messages: 'User not found' });
+    }
+
+    // Buat reset token dan hash
+    const resetToken = uuidv4();
+    const hashedToken = bcrypt.hashSync(resetToken, 10);
+    const expiresAt = Date.now() + 3600000; // 1 hour
+
+    // Buat record untuk password reset
+    const newPasswordReset = new UserPasswordReset({
+      userId: user._id,
+      resetToken: hashedToken,
+      createdAt: Date.now(),
+      expiresAt,
+    });
+
+    // Simpan record password reset
+    await newPasswordReset.save();
+
+    // Kirim email reset password
+    await sendResetPasswordEmail(user.email, user.userName, resetToken);
+    res.status(200).json({
+      error: false,
+      messages: 'Password reset email sent',
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: true,
+      messages: 'Error processing reset request',
+    });
+  }
+};
+
+// Verification email password reset
+exports.verifyResetPassword = async (req, res) => {
+  try {
+    const { resetToken, newPassword } = req.body;
+    const passwordResets = await UserPasswordReset.find();
+    const passwordReset = passwordResets.find((pr) =>
+      bcrypt.compareSync(resetToken, pr.resetToken)
+    );
+
+    if (!passwordReset) {
+      return res.status(400).json({
+        error: true,
+        messages: 'Invalid reset token',
+      });
+    }
+
+    const { userId, expiresAt } = passwordReset;
+    if (expiresAt < Date.now()) {
+      return res.status(400).json({
+        error: true,
+        messages: 'Reset token has expired',
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(400).json({
+        error: true,
+        messages: 'User not found',
+      });
+    }
+
+    const hashedPassword = await argon2.hash(newPassword);
+    user.password = hashedPassword;
+
+    await user.save();
+    await UserPasswordReset.deleteOne({ _id: passwordReset._id });
+    res.status(200).json({
+      success: true,
+      messages: 'Password reset successfully',
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: true,
+      messages: 'Failed to reset password',
+    });
   }
 };

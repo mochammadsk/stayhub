@@ -17,16 +17,6 @@ module.exports = (app) => {
     });
   });
 
-  // Password reset
-  router.post('/forgot-password', (req, res) => {
-    user.resetPassword(req, res);
-  });
-
-  // Verification email for password rest
-  router.post('/verify', (req, res) => {
-    user.verifyResetPassword(req, res);
-  });
-
   // Update profile data
   router.put('/profile/update/:id', auth, (req, res) => {
     user.update(req, res);
