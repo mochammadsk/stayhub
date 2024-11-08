@@ -1,5 +1,6 @@
 # Images
-public/images
+public/
+src/views/
 
 # Logs
 logs
