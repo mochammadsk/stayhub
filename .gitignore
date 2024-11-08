@@ -1,6 +1,7 @@
-# Images
+# Folder hint
 public/
 src/views/
+seeds/
 
 # Logs
 logs
