@@ -32,18 +32,21 @@ exports.findById = async (req, res) => {
 exports.addRoom = async (req, res) => {
   try {
     const { type, name, cost } = req.body;
-    // const imagePath = req.file ? req.file.path : null;
-
     const existingRoom = await Room.findOne({ name });
     if (existingRoom) {
       return res.status(404).json({ message: 'Room already exists' });
     }
 
+    const images = req.files.map((file) => ({
+      url: file.path,
+      filename: file.filename,
+    }));
+
     const room = new Room({
       type,
       name,
       cost,
-      // images,
+      images,
     });
 
     await room.save();

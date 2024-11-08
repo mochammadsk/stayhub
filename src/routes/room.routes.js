@@ -1,6 +1,7 @@
 module.exports = (app) => {
   const room = require('../controllers/room.controller');
   const { auth } = require('../middelware/auth.middleware');
+  const upload = require('../config/multer');
   const router = require('express').Router();
   const dotenv = require('dotenv');
 
@@ -17,7 +18,7 @@ module.exports = (app) => {
   });
 
   // Create room
-  router.post('/add', auth('admin'), (req, res) => {
+  router.post('/add', auth('admin'), upload, (req, res) => {
     room.addRoom(req, res);
   });
 
