@@ -3,7 +3,7 @@ const path = require('path');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, '../uploads/');
+    cb(null, path.resolve(__dirname, '../../public/images/rooms'));
   },
   filename: function (req, file, cb) {
     cb(null, `${Date.now()}-${file.originalname}`);
@@ -27,4 +27,6 @@ const upload = multer({
   storage: storage,
   limits: { fileSize: 2 * 1024 * 1024 },
   fileFilter: fileFilter,
-}).single('image');
+}).array('images', 5);
+
+module.exports = upload;
