@@ -38,10 +38,10 @@ const uploadProfileImages = multer({
   fileFilter: fileFilter,
 }).single('profileImages');
 
-const uploadRoomImgages = multer({
+const uploadRoomImages = multer({
   storage: roomStorage,
   limits: { fileSize: 2 * 1024 * 1024 },
   fileFilter: fileFilter,
 }).array('images', 5);
 
-module.exports = { uploadProfileImages, uploadRoomImgages };
+module.exports = { uploadProfileImages, uploadRoomImages };
