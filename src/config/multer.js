@@ -42,6 +42,6 @@ const uploadRoomImages = multer({
   storage: roomStorage,
   limits: { fileSize: 2 * 1024 * 1024 },
   fileFilter: fileFilter,
-}).array('images', 5);
+}).array('roomImages', 5);
 
 module.exports = { uploadProfileImages, uploadRoomImages };
