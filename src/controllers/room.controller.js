@@ -1,4 +1,6 @@
 const Room = require('../models/room.model');
+const fs = require('fs');
+const path = require('path');
 
 // Get all rooms
 exports.findAll = async (req, res) => {
@@ -32,18 +34,21 @@ exports.findById = async (req, res) => {
 exports.addRoom = async (req, res) => {
   try {
     const { type, name, cost } = req.body;
-    // const imagePath = req.file ? req.file.path : null;
-
     const existingRoom = await Room.findOne({ name });
     if (existingRoom) {
       return res.status(404).json({ message: 'Room already exists' });
     }
 
+    const images = req.files.map((file) => ({
+      url: file.path,
+      filename: file.filename,
+    }));
+
     const room = new Room({
       type,
       name,
       cost,
-      // images,
+      images,
     });
 
     await room.save();
@@ -57,13 +62,35 @@ exports.addRoom = async (req, res) => {
 exports.updateRoom = async (req, res) => {
   try {
     const { type, name, cost } = req.body;
-    const room = await Room.findOneAndUpdate(
-      { _id: req.params.id },
-      { type, name, cost },
-      { new: true }
-    );
+    const roomId = req.params.id;
+    const room = await Room.findById(roomId);
     if (!room) {
       return res.status(404).json({ message: 'Room not found' });
+    }
+
+    const existingRoom = await Room.findOne({ name });
+    if (existingRoom) {
+      return res.status(404).json({ message: 'Room already exists' });
+    }
+
+    room.type = type || room.type;
+    room.name = name || room.name;
+    room.cost = cost || room.cost;
+
+    if (req.files && req.files.length > 0) {
+      room.images.forEach((image) => {
+        fs.unlink(image.url, (err) => {
+          console.log(err);
+        });
+      });
+
+      const images = req.files.map((file) => ({
+        url: file.path,
+        filename: file.filename,
+      }));
+
+      room.images = images;
+      await room.save();
     }
 
     res.status(200).json({ message: 'Room updated!', room });

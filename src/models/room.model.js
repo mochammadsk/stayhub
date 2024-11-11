@@ -5,7 +5,12 @@ const roomSchema = new mongoose.Schema(
     type: { type: String, required: true },
     name: { type: String, required: true },
     cost: { type: Number, required: true },
-    // images: { type: String, required: true },
+    images: [
+      {
+        url: { type: String, required: true },
+        filename: { type: String, required: true },
+      },
+    ],
   },
   {
     timestamps: true,
