@@ -128,13 +128,26 @@ exports.deleteById = async (req, res) => {
 exports.deleteAll = async (req, res) => {
   try {
     const room = await Room.find();
-    if (!room) {
+    if (room.length === 0) {
       return res.status(404).json({ message: 'Room not found' });
     }
+
+    const deleteImages = room.flatMap((room) =>
+      room.images.map((image) => {
+        const filePath = path.resolve(
+          __dirname,
+          '../../public/images/rooms',
+          image.filename
+        );
+        return fs.unlink(filePath);
+      })
+    );
+    await Promise.all(deleteImages);
 
     await Room.deleteMany();
     res.status(200).json({ message: 'All rooms deleted!' });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
