@@ -18,22 +18,22 @@ module.exports = (app) => {
   });
 
   // Create room
-  router.post('/add', auth(), uploadRoomImages, (req, res) => {
+  router.post('/add', auth('admin'), uploadRoomImages, (req, res) => {
     room.addRoom(req, res);
   });
 
   // Update room by id
-  router.put('/update/:id', auth(), uploadRoomImages, (req, res) => {
+  router.put('/update/:id', auth('admin'), uploadRoomImages, (req, res) => {
     room.updateRoom(req, res);
   });
 
   // Delete room by id
-  router.delete('/delete/:id', auth(), (req, res) => {
+  router.delete('/delete/:id', auth('admin'), (req, res) => {
     room.deleteById(req, res);
   });
 
   // Delete all rooms
-  router.delete('/delete', auth(), (req, res) => {
+  router.delete('/delete', auth('admin'), (req, res) => {
     room.deleteAll(req, res);
   });
 
