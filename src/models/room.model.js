@@ -11,6 +11,7 @@ const roomSchema = new mongoose.Schema(
         filename: { type: String, required: true },
       },
     ],
+    reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }],
   },
   {
     timestamps: true,
@@ -23,4 +24,4 @@ roomSchema.method('toJSON', function () {
   return object;
 });
 
-module.exports = mongoose.model('room', roomSchema);
+module.exports = mongoose.model('Room', roomSchema);
