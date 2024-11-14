@@ -1,6 +1,7 @@
 const Review = require('../models/review.model');
 const Room = require('../models/room.model');
 
+// Create Review
 exports.addReview = async (req, res) => {
   try {
     const { rating, comment } = req.body;
@@ -40,5 +41,35 @@ exports.addReview = async (req, res) => {
       .json({ message: 'Review added successfully', data: review });
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error });
+  }
+};
+
+// Update review
+exports.updateReview = async (req, res) => {
+  try {
+    const { rating, comment } = req.body;
+
+    if (!req.user || !req.user.id) {
+      return res.status(400).json({ message: 'User ID is missing' });
+    }
+
+    const room = await Room.findById(req.params.id).populate('reviews');
+    if (!room) {
+      return res.status(404).json({ message: 'Room not found' });
+    }
+
+    const review = await Review.findById(room.reviews[0]._id);
+    if (!review) {
+      return res.status(404).json({ message: 'Review not found' });
+    }
+
+    review.rating = rating;
+    review.comment = comment;
+    await review.save();
+
+    res.status(200).json({ message: 'Update success' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Internal server eror', error });
   }
 };
