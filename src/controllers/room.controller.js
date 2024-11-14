@@ -140,7 +140,6 @@ exports.deleteById = async (req, res) => {
     await Promise.all(deleteImages);
 
     const review = room.reviews.map((review) => review._id);
-    console.log(review);
     await Review.deleteMany({ _id: { $in: review } });
 
     await Room.findByIdAndDelete(req.params.id);
