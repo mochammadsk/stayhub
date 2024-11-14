@@ -8,5 +8,10 @@ module.exports = (app) => {
     review.addReview(req, res);
   });
 
+  // Update review
+  router.put('/review/:id', auth('user'), (req, res) => {
+    review.updateReview(req, res);
+  });
+
   app.use('/room', router);
 };
