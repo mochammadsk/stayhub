@@ -1,4 +1,5 @@
 const Room = require('../models/room.model');
+const Review = require('../models/review.model');
 const fs = require('fs').promises;
 const path = require('path');
 
@@ -138,6 +139,10 @@ exports.deleteById = async (req, res) => {
     });
     await Promise.all(deleteImages);
 
+    const review = room.reviews.map((review) => review._id);
+    console.log(review);
+    await Review.deleteMany({ _id: { $in: review } });
+
     await Room.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: 'Room deleted!' });
   } catch (error) {
@@ -164,6 +169,11 @@ exports.deleteAll = async (req, res) => {
       })
     );
     await Promise.all(deleteImages);
+
+    const review = room.flatMap((room) =>
+      room.reviews.map((review) => review._id)
+    );
+    await Review.deleteMany({ _id: { $in: review } });
 
     await Room.deleteMany();
     res.status(200).json({ message: 'All rooms deleted!' });
