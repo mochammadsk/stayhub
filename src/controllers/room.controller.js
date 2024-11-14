@@ -5,7 +5,14 @@ const path = require('path');
 // Get all rooms
 exports.findAll = async (req, res) => {
   try {
-    const room = await Room.find();
+    const room = await Room.find().populate({
+      path: 'reviews',
+      populate: {
+        path: 'user',
+        select: 'fullName',
+      },
+    });
+
     if (room.length === 0) {
       return res.status(404).json({ message: 'Rooms not found' });
     }
@@ -19,7 +26,14 @@ exports.findAll = async (req, res) => {
 exports.findById = async (req, res) => {
   try {
     const id = req.params.id;
-    const room = await Room.findById(id);
+    const room = await Room.findById(id).populate({
+      path: 'reviews',
+      populate: {
+        path: 'user',
+        select: 'fullName',
+      },
+    });
+
     if (!room) {
       return res.status(404).json({ message: 'Room not found' });
     }
