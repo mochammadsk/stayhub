@@ -20,8 +20,7 @@ const roomSchema = new mongoose.Schema(
 
 roomSchema.method('toJSON', function () {
   const { __v, _id, ...object } = this.toObject();
-  object.id = _id;
-  return object;
+  return { id: _id, ...object };
 });
 
 module.exports = mongoose.model('Room', roomSchema);
