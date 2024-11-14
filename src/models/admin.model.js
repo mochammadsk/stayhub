@@ -1,11 +1,11 @@
-const mongoose = require("mongoose");
-const argon2 = require("argon2");
+const mongoose = require('mongoose');
+const argon2 = require('argon2');
 
 const adminSchema = new mongoose.Schema(
   {
     userName: { type: String, required: true },
     email: { type: String, required: true },
-    role: { type: String, default: "admin" },
+    role: { type: String, default: 'admin' },
     password: { type: String, required: true },
     verified: { type: Boolean, default: false },
   },
@@ -14,8 +14,8 @@ const adminSchema = new mongoose.Schema(
   }
 );
 
-adminSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+adminSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
   try {
     this.password = await argon2.hash(this.password);
     next();
@@ -24,10 +24,9 @@ adminSchema.pre("save", async function (next) {
   }
 });
 
-adminSchema.method("toJSON", function () {
+adminSchema.method('toJSON', function () {
   const { __v, _id, ...object } = this.toObject();
-  object.id = _id;
-  return object;
+  return { id: _id, ...object };
 });
 
-module.exports = mongoose.model("admin", adminSchema);
+module.exports = mongoose.model('Admin', adminSchema);

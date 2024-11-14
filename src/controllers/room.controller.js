@@ -1,11 +1,19 @@
 const Room = require('../models/room.model');
+const Review = require('../models/review.model');
 const fs = require('fs').promises;
 const path = require('path');
 
 // Get all rooms
 exports.findAll = async (req, res) => {
   try {
-    const room = await Room.find();
+    const room = await Room.find().populate({
+      path: 'reviews',
+      populate: {
+        path: 'user',
+        select: 'fullName',
+      },
+    });
+
     if (room.length === 0) {
       return res.status(404).json({ message: 'Rooms not found' });
     }
@@ -19,7 +27,14 @@ exports.findAll = async (req, res) => {
 exports.findById = async (req, res) => {
   try {
     const id = req.params.id;
-    const room = await Room.findById(id);
+    const room = await Room.findById(id).populate({
+      path: 'reviews',
+      populate: {
+        path: 'user',
+        select: 'fullName',
+      },
+    });
+
     if (!room) {
       return res.status(404).json({ message: 'Room not found' });
     }
@@ -124,6 +139,9 @@ exports.deleteById = async (req, res) => {
     });
     await Promise.all(deleteImages);
 
+    const review = room.reviews.map((review) => review._id);
+    await Review.deleteMany({ _id: { $in: review } });
+
     await Room.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: 'Room deleted!' });
   } catch (error) {
@@ -150,6 +168,11 @@ exports.deleteAll = async (req, res) => {
       })
     );
     await Promise.all(deleteImages);
+
+    const review = room.flatMap((room) =>
+      room.reviews.map((review) => review._id)
+    );
+    await Review.deleteMany({ _id: { $in: review } });
 
     await Room.deleteMany();
     res.status(200).json({ message: 'All rooms deleted!' });
