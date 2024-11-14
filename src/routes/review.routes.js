@@ -13,5 +13,10 @@ module.exports = (app) => {
     review.updateReview(req, res);
   });
 
+  // Delete review
+  router.delete('/review/:id', auth('user'), (req, res) => {
+    review.deleteReview(req, res);
+  });
+
   app.use('/room', router);
 };
