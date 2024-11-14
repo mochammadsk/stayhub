@@ -15,12 +15,12 @@ exports.findAll = async (req, res) => {
     });
 
     if (room.length === 0) {
-      return res.status(404).json({ message: 'Rooms not found' });
+      return res.status(404).json({ message: "Rooms not found" });
     }
 
     res.status(200).json(room);
   } catch (error) {
-    res.status(500).json({ message: 'Internal Server Error', error });
+    res.status(500).json({ message: "Internal Server Error", error });
   }
 };
 
@@ -36,12 +36,12 @@ exports.findById = async (req, res) => {
     });
 
     if (!room) {
-      return res.status(404).json({ message: 'Room not found' });
+      return res.status(404).json({ message: "Room not found" });
     }
 
     res.status(200).json(room);
   } catch (error) {
-    res.status(500).json({ message: 'Internal Server Error', error });
+    res.status(500).json({ message: "Internal Server Error", error });
   }
 };
 
@@ -51,7 +51,7 @@ exports.addRoom = async (req, res) => {
     const { type, name, cost } = req.body;
     const existingRoom = await Room.findOne({ name });
     if (existingRoom) {
-      return res.status(404).json({ message: 'Room already exists' });
+      return res.status(404).json({ message: "Room already exists" });
     }
 
     const images = req.files.map((file) => ({
@@ -67,9 +67,9 @@ exports.addRoom = async (req, res) => {
     });
 
     await room.save();
-    res.status(201).json({ message: 'Room created successfully', data: room });
+    res.status(201).json({ message: "Room created successfully", data: room });
   } catch (error) {
-    res.status(500).json({ message: 'Internal Server Error', error });
+    res.status(500).json({ message: "Internal Server Error", error });
   }
 };
 
@@ -88,7 +88,6 @@ exports.updateRoom = async (req, res) => {
 
     const existingRoom = await Room.findOne({ name });
 
-    if (existingRoom) {
       if (req.files && req.files.length > 0) {
         await Promise.all(req.files.map((file) => fs.unlink(file.path)));
       }
@@ -115,9 +114,9 @@ exports.updateRoom = async (req, res) => {
       await room.save();
     }
 
-    res.status(200).json({ message: 'Room updated!', room });
+    res.status(200).json({ message: "Room updated!", room });
   } catch (error) {
-    res.status(500).json({ message: 'Internal Server Error', error });
+    res.status(500).json({ message: "Internal Server Error", error });
   }
 };
 
@@ -126,7 +125,7 @@ exports.deleteById = async (req, res) => {
   try {
     const room = await Room.findById(req.params.id);
     if (!room) {
-      return res.status(404).json({ message: 'Room not found' });
+      return res.status(404).json({ message: "Room not found" });
     }
 
     const deleteImages = room.images.map((image) => {
@@ -145,7 +144,7 @@ exports.deleteById = async (req, res) => {
     await Room.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: 'Room deleted!' });
   } catch (error) {
-    res.status(500).json({ message: 'Internal Server Error', error });
+    res.status(500).json({ message: "Internal Server Error", error });
   }
 };
 
@@ -153,6 +152,7 @@ exports.deleteById = async (req, res) => {
 exports.deleteAll = async (req, res) => {
   try {
     const room = await Room.find();
+
     if (room.length === 0) {
       return res.status(404).json({ message: 'Room not found' });
     }
@@ -175,8 +175,8 @@ exports.deleteAll = async (req, res) => {
     await Review.deleteMany({ _id: { $in: review } });
 
     await Room.deleteMany();
-    res.status(200).json({ message: 'All rooms deleted!' });
+    res.status(200).json({ message: "All rooms deleted!" });
   } catch (error) {
-    res.status(500).json({ message: 'Internal Server Error', error });
+    res.status(500).json({ message: "Internal Server Error", error });
   }
 };
