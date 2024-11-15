@@ -1,12 +1,10 @@
-const { limits } = require("argon2");
-const { storage } = require("googleapis/build/src/apis/storage");
-const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
 const profileStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.resolve(__dirname, "../../public/images/profile"));
+    cb(null, path.resolve(__dirname, '../../public/images/profile'));
   },
   filename: function (req, file, cb) {
     cb(null, `${Date.now()}-${file.originalname}`);
@@ -15,17 +13,16 @@ const profileStorage = multer.diskStorage({
 
 const roomStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.resolve(__dirname, "../../public/images/rooms"));
+    cb(null, path.resolve(__dirname, '../../public/images/rooms'));
   },
   filename: function (req, file, cb) {
     cb(null, `${Date.now()}-${file.originalname}`);
   },
 });
 
-const keluhanStorage = multer.diskStorage({
+const complaintStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const dir = path.resolve(__dirname, "../../public/images/keluhan");
-    // Membuat direktori jika belum ada
+    const dir = path.resolve(__dirname, '../../public/images/complaint');
     fs.mkdir(dir, { recursive: true }, (err) => {
       if (err) {
         return cb(err);
@@ -48,25 +45,29 @@ const fileFilter = (req, file, cb) => {
   if (mimetype && extname) {
     return cb(null, true);
   }
-  cb(new Error("Only .jpeg, .jpg, and .png files are allowed!"));
+  cb(new Error('Only .jpeg, .jpg, and .png files are allowed!'));
 };
 
 const uploadProfileImages = multer({
   storage: profileStorage,
   limits: { fileSize: 2 * 1024 * 1024 },
   fileFilter: fileFilter,
-}).single("profileImages");
+}).single('profileImages');
 
 const uploadRoomImages = multer({
   storage: roomStorage,
   limits: { fileSize: 2 * 1024 * 1024 },
   fileFilter: fileFilter,
-}).array("roomImages", 5);
+}).array('roomImages', 5);
 
-const uploadKeluhanImages = multer({
-  storage: keluhanStorage,
+const uploadComplaintImages = multer({
+  storage: complaintStorage,
   limits: { fileSize: 2 * 1024 * 1024 },
   fileFilter: fileFilter,
-}).array("keluhanImages", 5);
+}).array('complaintImages', 5);
 
-module.exports = { uploadProfileImages, uploadRoomImages, uploadKeluhanImages };
+module.exports = {
+  uploadProfileImages,
+  uploadRoomImages,
+  uploadComplaintImages,
+};
