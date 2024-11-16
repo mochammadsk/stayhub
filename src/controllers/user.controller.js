@@ -1,7 +1,7 @@
 const User = require('../models/user.model');
 const dotenv = require('dotenv');
-const fs = require('fs').promises;
 const path = require('path');
+const fs = require('fs').promises;
 
 dotenv.config();
 
@@ -43,7 +43,7 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-// Delete data
+// Delete photo profile
 exports.deletePhotoProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
