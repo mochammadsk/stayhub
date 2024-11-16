@@ -14,11 +14,12 @@ exports.findAll = async (req, res) => {
       },
     });
 
+    // Check if rooms exist
     if (room.length === 0) {
       return res.status(404).json({ message: 'Rooms not found' });
     }
 
-    res.status(200).json(room);
+    res.status(200).json({ data: room });
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error });
   }
@@ -36,11 +37,12 @@ exports.findById = async (req, res) => {
       },
     });
 
+    // Check if room exists
     if (!room) {
       return res.status(404).json({ message: 'Room not found' });
     }
 
-    res.status(200).json(room);
+    res.status(200).json({ data: room });
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error });
   }
@@ -50,16 +52,20 @@ exports.findById = async (req, res) => {
 exports.addRoom = async (req, res) => {
   try {
     const { type, name, cost } = req.body;
+
+    // Check if room name already exists
     const existingRoom = await Room.findOne({ name });
     if (existingRoom) {
       return res.status(404).json({ message: 'Room already exists' });
     }
 
+    // Upload images
     const images = req.files.map((file) => ({
       url: file.path,
       filename: file.filename,
     }));
 
+    // Create room
     const room = new Room({
       type,
       name,
@@ -67,6 +73,7 @@ exports.addRoom = async (req, res) => {
       images,
     });
 
+    // Save room
     await room.save();
     res.status(201).json({ message: 'Room created successfully', data: room });
   } catch (error) {
@@ -133,10 +140,12 @@ exports.updateRoom = async (req, res) => {
 exports.deleteById = async (req, res) => {
   try {
     const room = await Room.findById(req.params.id);
+    // Check if room exists
     if (!room) {
       return res.status(404).json({ message: 'Room not found' });
     }
 
+    // Delete images
     const deleteImages = room.images.map((image) => {
       const filePath = path.resolve(
         __dirname,
@@ -147,9 +156,11 @@ exports.deleteById = async (req, res) => {
     });
     await Promise.all(deleteImages);
 
+    // Delete reviews
     const review = room.reviews.map((review) => review._id);
     await Review.deleteMany({ _id: { $in: review } });
 
+    // Delete room
     await Room.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: 'Room deleted!' });
   } catch (error) {
@@ -161,11 +172,12 @@ exports.deleteById = async (req, res) => {
 exports.deleteAll = async (req, res) => {
   try {
     const room = await Room.find();
-
+    // Check if rooms exist
     if (room.length === 0) {
       return res.status(404).json({ message: 'Room not found' });
     }
 
+    // Delete images
     const deleteImages = room.flatMap((room) =>
       room.images.map((image) => {
         const filePath = path.resolve(
@@ -178,11 +190,13 @@ exports.deleteAll = async (req, res) => {
     );
     await Promise.all(deleteImages);
 
+    // Delete reviews
     const review = room.flatMap((room) =>
       room.reviews.map((review) => review._id)
     );
     await Review.deleteMany({ _id: { $in: review } });
 
+    // Delete rooms
     await Room.deleteMany();
     res.status(200).json({ message: 'All rooms deleted!' });
   } catch (error) {
