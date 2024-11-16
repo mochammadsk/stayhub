@@ -1,4 +1,5 @@
 const Complaint = require('../models/complaint.model');
+const Room = require('../models/room.model');
 const path = require('path');
 const fs = require('fs').promise;
 
@@ -38,8 +39,19 @@ exports.add = async (req, res) => {
   try {
     const { title, description } = req.body;
 
+    if (!req.user || !req.user.id) {
+      return res.status(400).json({ message: 'User ID is missing' });
+    }
+
+    const room = await Room.findById(req.params.id);
+    if (!room) {
+      return res.status(404).json({ message: 'Room not found' });
+    }
     // Check if complaint already exists
-    const existingComplaint = await Complaint.findOne({ title });
+    const existingComplaint = await Complaint.findOne({
+      room: room._id,
+      user: req.user.id,
+    });
     if (existingComplaint) {
       return res.status(409).json({ message: 'Complaint already exists' });
     }
@@ -52,14 +64,18 @@ exports.add = async (req, res) => {
 
     // Create complaint
     const complaint = new Complaint({
+      user: req.user.id,
       title,
       description,
       images,
-      status: 'ditunda',
     });
 
     // Save complaint
     await complaint.save();
+
+    room.complaints.push(complaint._id);
+    await room.save();
+
     res
       .status(201)
       .json({ message: 'Room created successfully', data: complaint });
