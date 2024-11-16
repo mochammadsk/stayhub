@@ -73,7 +73,7 @@ exports.addRoom = async (req, res) => {
   }
 };
 
-// Update book by id
+// Update room by id
 exports.updateRoom = async (req, res) => {
   try {
     const { type, name, cost } = req.body;
@@ -87,7 +87,6 @@ exports.updateRoom = async (req, res) => {
     }
 
     const existingRoom = await Room.findOne({ name });
-
     if (existingRoom) {
       if (req.files && req.files.length > 0) {
         await Promise.all(req.files.map((file) => fs.unlink(file.path)));
@@ -153,6 +152,7 @@ exports.deleteById = async (req, res) => {
 exports.deleteAll = async (req, res) => {
   try {
     const room = await Room.find();
+
     if (room.length === 0) {
       return res.status(404).json({ message: 'Room not found' });
     }
