@@ -1,7 +1,7 @@
 module.exports = (app) => {
   const complaint = require('../controllers/complaint.controller');
   const { auth } = require('../middelware/auth.middleware');
-  const { uploadComplaintImages } = require('../config/multer');
+  const { complaintImages } = require('../config/multer');
   const dotenv = require('dotenv');
   const router = require('express').Router();
 
@@ -14,20 +14,10 @@ module.exports = (app) => {
   router.get('/:id', auth('user', 'admin'), complaint.findById);
 
   // Create complaint
-  router.post(
-    '/create',
-    auth('user'),
-    uploadComplaintImages,
-    complaint.addKeluhan
-  );
+  router.post('/create', auth('user'), complaintImages, complaint.addKeluhan);
 
   // Update complaint by id
-  router.put(
-    '/update/:id',
-    auth('user'),
-    uploadComplaintImages,
-    complaint.update
-  );
+  router.put('/update/:id', auth('user'), complaintImages, complaint.update);
 
   // Delete complaint by id
   router.delete('/delete/:id', auth('user'), complaint.deleteById);
