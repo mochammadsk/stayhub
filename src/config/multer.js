@@ -65,26 +65,26 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const uploadProfileImages = multer({
+const profileImages = multer({
   storage: profileStorage,
   limits: { fileSize: 2 * 1024 * 1024 },
   fileFilter: fileFilter,
 }).single('profileImages');
 
-const uploadRoomImages = multer({
+const roomImages = multer({
   storage: roomStorage,
   limits: { fileSize: 2 * 1024 * 1024 },
   fileFilter: fileFilter,
 }).array('roomImages', 5);
 
-const uploadComplaintImages = multer({
+const complaintImages = multer({
   storage: complaintStorage,
   limits: { fileSize: 2 * 1024 * 1024 },
   fileFilter: fileFilter,
 }).array('complaintImages', 5);
 
 module.exports = {
-  uploadProfileImages,
-  uploadRoomImages,
-  uploadComplaintImages,
+  profileImages,
+  roomImages,
+  complaintImages,
 };
