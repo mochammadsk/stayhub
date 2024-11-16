@@ -26,10 +26,4 @@ const auth = (role) => (req, res, next) => {
   }
 };
 
-    next();
-  } catch (error) {
-    res.status(400).json({ message: 'Invalid Token' });
-  }
-};
-
 module.exports = { auth, blacklist };
