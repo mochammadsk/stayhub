@@ -20,13 +20,12 @@ exports.updateProfile = async (req, res) => {
     user.phone = phone || user.phone;
 
     if (req.file) {
-      if (Array.isArray(user.images) && req.file.length > 0) {
+      if (Array.isArray(user.images) && user.images.length > 0) {
         for (const image of user.images) {
           const filePath = path.resolve(image.url);
-          if (fs.existsSync(filePath)) {
-            console.log(`Deleted old file: ${filePath}`);
-            await fs.unlink(filePath);
-          }
+
+          await fs.access(filePath);
+          await fs.unlink(filePath);
         }
       }
       user.images = [
@@ -40,7 +39,6 @@ exports.updateProfile = async (req, res) => {
     await user.save();
     res.status(200).json({ message: 'Profile updated successfully' });
   } catch (error) {
-    console.log(error);
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
