@@ -136,12 +136,20 @@ exports.update = async (req, res) => {
 // Delete complaint by id
 exports.deleteById = async (req, res) => {
   try {
-    const complaint = await Complaint.findById(req.params.id);
-    // Check if complaint exist
+    // Check if user is authenticated
+    if (!req.user || !req.user.id) {
+      return res.status(400).json({ message: 'User ID is missing' });
+    }
+    // Check if room exists
+    const room = await Room.findById(req.params.id).populate('complaints');
+    if (!room) {
+      return res.status(404).json({ message: 'Room not found' });
+    }
+    // Check if complaint exists
+    const complaint = await Complaint.findById(room.complaints[0]._id);
     if (!complaint) {
       return res.status(404).json({ message: 'Complaint not found' });
     }
-
     // Delete images
     const deleteImages = complaint.images.map((image) => {
       const filePath = path.resolve(
@@ -152,9 +160,14 @@ exports.deleteById = async (req, res) => {
       return fs.unlink(filePath);
     });
     await Promise.all(deleteImages);
-
     // Delete complaint
-    await Complaint.findByIdAndDelete(req.params.id);
+    await Complaint.findByIdAndDelete(complaint.id);
+    // Delete complaint from room
+    room.complaints = room.complaints.filter(
+      (r) => r._id.toString() !== complaint._id.toString()
+    );
+    await room.save();
+
     res.status(200).json({ message: 'Complaint deleted!' });
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error });
