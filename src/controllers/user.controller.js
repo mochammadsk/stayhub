@@ -44,15 +44,26 @@ exports.updateProfile = async (req, res) => {
 };
 
 // Delete data
-exports.delete = (req, res) => {
-  const id = req.params.id;
+exports.deletePhotoProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
-  User.findOneAndDelete(id)
-    .then((data) => {
-      if (!data) {
-        res.status(404).send({ messages: "Data can't be deleted!" });
+    if (Array.isArray(user.images) && user.images.length > 0) {
+      for (const image of user.images) {
+        const filePath = path.resolve(image.url);
+
+        await fs.access(filePath);
+        await fs.unlink(filePath);
       }
-      res.send({ messages: 'Data deleted successfully!' });
-    })
-    .catch((err) => res.status(500).send({ messages: err.messages }));
+    }
+    user.images = [];
+
+    await user.save();
+    res.status(200).json({ message: 'Profile updated successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal Server Error', error });
+  }
 };

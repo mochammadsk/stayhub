@@ -14,10 +14,15 @@ module.exports = (app) => {
     }
   );
 
-  // Delete data
-  router.delete('/delete/:id', auth, (req, res) => {
-    user.delete(req, res);
-  });
+  // Delete photo profile
+  router.delete(
+    '/profile/update',
+    auth('user'),
+    uploadProfileImages,
+    (req, res) => {
+      user.deletePhotoProfile(req, res);
+    }
+  );
 
   app.use('/', router);
 };
