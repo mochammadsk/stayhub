@@ -18,19 +18,19 @@ module.exports = (app) => {
   });
 
   // Create complaint
-  router.post('/create', auth('user'), complaintImages, (req, res) => {
+  router.post('/complaint/:id', auth('user'), complaintImages, (req, res) => {
     complaint.add(req, res);
   });
 
   // Update complaint by id
-  router.put('/update/:id', auth('user'), complaintImages, (req, res) => {
+  router.put('/complaint/:id', auth('user'), complaintImages, (req, res) => {
     complaint.update(req, res);
   });
 
   // Delete complaint by id
-  router.delete('/delete/:id', auth('user'), (req, res) => {
+  router.delete('/complaint/:id', auth('user'), (req, res) => {
     complaint.deleteById(req, res);
   });
 
-  app.use('/complaint', router);
+  app.use('/room', router);
 };
