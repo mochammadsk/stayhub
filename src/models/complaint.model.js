@@ -31,4 +31,4 @@ complaintSchema.method('toJSON', function () {
   return { id: _id, ...object };
 });
 
-module.exports = mongoose.model('complaint', complaintSchema);
+module.exports = mongoose.model('Complaint', complaintSchema);
