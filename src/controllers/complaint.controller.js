@@ -6,14 +6,22 @@ const fs = require('fs').promises;
 // Get all complaint
 exports.findAll = async (req, res) => {
   try {
-    const complaint = await Complaint.find();
+    // Check if user is authenticated
+    if (!req.user || !req.user.id) {
+      return res.status(400).json({ message: 'User ID is missing' });
+    }
     // Check if complaint exist
+    const complaint = await Complaint.find().populate({
+      path: 'user',
+      select: 'fullName',
+    });
     if (complaint.length === 0) {
-      return res.status(404).json({ message: 'Complaint not found' });
+      return res.status(404).json({ message: 'No complaints found' });
     }
 
     res.status(200).json({ data: complaint });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
@@ -21,9 +29,15 @@ exports.findAll = async (req, res) => {
 // Get complaint by id
 exports.findById = async (req, res) => {
   try {
-    const id = req.params.id;
-    const complaint = await Complaint.findById(id);
+    // Check if user is authenticated
+    if (!req.user || !req.user.id) {
+      return res.status(400).json({ message: 'User ID is missing' });
+    }
     // Check if complaint exist
+    const complaint = await Complaint.findById(req.params.id).populate({
+      path: 'user',
+      select: 'fullName',
+    });
     if (!complaint) {
       return res.status(404).json({ message: 'Complaint not found' });
     }
@@ -75,7 +89,7 @@ exports.add = async (req, res) => {
 
     res
       .status(201)
-      .json({ message: 'Room created successfully', data: complaint });
+      .json({ message: 'Complaint created successfully', data: complaint });
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error });
   }
