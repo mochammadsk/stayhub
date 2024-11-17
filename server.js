@@ -1,8 +1,14 @@
 const app = require('./app.js');
-const db = require('./src/config/database');
-const mongoose = require('mongoose');
 const http = require('http');
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
 
+dotenv.config();
+
+// Database config
+const db = {
+  url: process.env.DB_URL,
+};
 // Connection to database
 mongoose
   .connect(db.url, db.mongooseConfig)
@@ -11,8 +17,7 @@ mongoose
     console.log(`Failed to connect - ${err.message}`);
     process.exit();
   });
-
 // Create server port
-const PORT = 8000;
+const PORT = process.env.PORT;
 const server = http.createServer(app);
 server.listen(PORT, () => console.log(`Server started on port ${PORT}`));
