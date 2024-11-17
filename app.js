@@ -55,7 +55,8 @@ require('./src/routes/auth.routes')(app);
 require('./src/routes/public.routes')(app);
 require('./src/routes/user.routes')(app);
 require('./src/routes/room.routes')(app);
-require('./src/routes/complaint.routes')(app);
+require('./src/routes/transaction.routes')(app);
 require('./src/routes/review.routes')(app);
+require('./src/routes/complaint.routes')(app);
 
 module.exports = app;
