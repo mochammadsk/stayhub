@@ -8,6 +8,12 @@ const userSchema = new mongoose.Schema(
     role: { type: String, default: 'user' },
     password: { type: String, required: true },
     verified: { type: Boolean, default: false },
+    images: [
+      {
+        url: { type: String, required: true },
+        filename: { type: String, required: true },
+      },
+    ],
   },
   {
     timestamps: true,

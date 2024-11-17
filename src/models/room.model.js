@@ -12,6 +12,7 @@ const roomSchema = new mongoose.Schema(
       },
     ],
     reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }],
+    complaints: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Complaint' }],
   },
   {
     timestamps: true,

@@ -1,14 +1,14 @@
 const Admin = require('../models/admin.model');
 const User = require('../models/user.model');
 const jwt = require('jsonwebtoken');
-const argon2 = require('argon2');
-const bcrypt = require('bcrypt');
-const { v4: uuidv4 } = require('uuid');
-const { google } = require('googleapis');
 const UserVerification = require('../models/userVerification.model');
 const sendVerificationEmail = require('../services/userVerification.service');
 const UserPasswordReset = require('../models/userPassReset.model');
 const sendResetPasswordEmail = require('../services/userPassReset.service');
+const argon2 = require('argon2');
+const bcrypt = require('bcrypt');
+const { v4: uuidv4 } = require('uuid');
+const { google } = require('googleapis');
 
 // Register account for user
 exports.register = async (req, res) => {
@@ -158,7 +158,7 @@ exports.googleAuthCallback = async (req, res) => {
       .oauth2({ version: 'v2', auth: oauth2Client })
       .userinfo.get();
 
-    // Simpan informasi pengguna ke dalam database
+    // Save user data to database
     User.findOneAndUpdate(
       {
         fullName: userInfo.data.name,
@@ -192,12 +192,12 @@ exports.resetPassword = async (req, res) => {
       return res.status(404).json({ error: true, messages: 'User not found' });
     }
 
-    // Buat reset token dan hash
+    // Create reset token and hash
     const resetToken = uuidv4();
     const hashedToken = bcrypt.hashSync(resetToken, 10);
     const expiresAt = Date.now() + 3600000; // 1 hour
 
-    // Buat record untuk password reset
+    // Create record for password reset
     const newPasswordReset = new UserPasswordReset({
       userId: user._id,
       resetToken: hashedToken,
@@ -205,10 +205,10 @@ exports.resetPassword = async (req, res) => {
       expiresAt,
     });
 
-    // Simpan record password reset
+    // Save record password reset
     await newPasswordReset.save();
 
-    // Kirim email reset password
+    // Send email reset password
     await sendResetPasswordEmail(user.email, user.userName, resetToken);
     res.status(200).json({
       error: false,

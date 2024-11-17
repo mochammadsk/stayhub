@@ -1,7 +1,7 @@
 const Room = require('../models/room.model');
 const Review = require('../models/review.model');
-const fs = require('fs').promises;
 const path = require('path');
+const fs = require('fs').promises;
 
 // Get all rooms
 exports.findAll = async (req, res) => {
@@ -12,18 +12,25 @@ exports.findAll = async (req, res) => {
         path: 'user',
         select: 'fullName',
       },
+      path: 'complaints',
+      populate: {
+        path: 'user',
+        select: 'fullName',
+      },
     });
 
+    // Check if rooms exist
     if (room.length === 0) {
       return res.status(404).json({ message: 'Rooms not found' });
     }
 
-    res.status(200).json(room);
+    res.status(200).json({ data: room });
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
 
+// Get room by id
 exports.findById = async (req, res) => {
   try {
     const id = req.params.id;
@@ -35,11 +42,12 @@ exports.findById = async (req, res) => {
       },
     });
 
+    // Check if room exists
     if (!room) {
       return res.status(404).json({ message: 'Room not found' });
     }
 
-    res.status(200).json(room);
+    res.status(200).json({ data: room });
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error });
   }
@@ -49,16 +57,20 @@ exports.findById = async (req, res) => {
 exports.addRoom = async (req, res) => {
   try {
     const { type, name, cost } = req.body;
+
+    // Check if room name already exists
     const existingRoom = await Room.findOne({ name });
     if (existingRoom) {
       return res.status(404).json({ message: 'Room already exists' });
     }
 
+    // Upload images
     const images = req.files.map((file) => ({
       url: file.path,
       filename: file.filename,
     }));
 
+    // Create room
     const room = new Room({
       type,
       name,
@@ -66,6 +78,7 @@ exports.addRoom = async (req, res) => {
       images,
     });
 
+    // Save room
     await room.save();
     res.status(201).json({ message: 'Room created successfully', data: room });
   } catch (error) {
@@ -73,13 +86,14 @@ exports.addRoom = async (req, res) => {
   }
 };
 
-// Update book by id
+// Update room by id
 exports.updateRoom = async (req, res) => {
   try {
     const { type, name, cost } = req.body;
-    const room = await Room.findById(req.params.id);
 
+    const room = await Room.findById(req.params.id);
     if (!room) {
+      // Delete images if room not found
       if (req.files && req.files.length > 0) {
         await Promise.all(req.files.map((file) => fs.unlink(file.path)));
       }
@@ -87,8 +101,8 @@ exports.updateRoom = async (req, res) => {
     }
 
     const existingRoom = await Room.findOne({ name });
-
     if (existingRoom) {
+      // Delete images if room with the same name already exists
       if (req.files && req.files.length > 0) {
         await Promise.all(req.files.map((file) => fs.unlink(file.path)));
       }
@@ -97,24 +111,30 @@ exports.updateRoom = async (req, res) => {
         .json({ message: 'Room with the same name already exists' });
     }
 
+    // Update room
     room.type = type || room.type;
     room.name = name || room.name;
     room.cost = cost || room.cost;
 
     if (req.files && req.files.length > 0) {
-      await Promise.all(
-        room.images.map((image) => fs.unlink(image.url).catch(console.error))
-      );
+      // Delete old images
+      if (room.images && room.images.length > 0) {
+        for (const image of room.images) {
+          const filePath = path.resolve(image.url);
 
-      const images = req.files.map((file) => ({
+          await fs.access(filePath);
+          await fs.unlink(filePath);
+        }
+      }
+      // Update images
+      room.images = req.files.map((file) => ({
         url: file.path,
         filename: file.filename,
       }));
-
-      room.images = images;
-      await room.save();
     }
 
+    // Save room
+    await room.save();
     res.status(200).json({ message: 'Room updated!', room });
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error });
@@ -125,10 +145,12 @@ exports.updateRoom = async (req, res) => {
 exports.deleteById = async (req, res) => {
   try {
     const room = await Room.findById(req.params.id);
+    // Check if room exists
     if (!room) {
       return res.status(404).json({ message: 'Room not found' });
     }
 
+    // Delete images
     const deleteImages = room.images.map((image) => {
       const filePath = path.resolve(
         __dirname,
@@ -139,9 +161,11 @@ exports.deleteById = async (req, res) => {
     });
     await Promise.all(deleteImages);
 
+    // Delete reviews
     const review = room.reviews.map((review) => review._id);
     await Review.deleteMany({ _id: { $in: review } });
 
+    // Delete room
     await Room.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: 'Room deleted!' });
   } catch (error) {
@@ -153,10 +177,12 @@ exports.deleteById = async (req, res) => {
 exports.deleteAll = async (req, res) => {
   try {
     const room = await Room.find();
+    // Check if rooms exist
     if (room.length === 0) {
       return res.status(404).json({ message: 'Room not found' });
     }
 
+    // Delete images
     const deleteImages = room.flatMap((room) =>
       room.images.map((image) => {
         const filePath = path.resolve(
@@ -169,11 +195,13 @@ exports.deleteAll = async (req, res) => {
     );
     await Promise.all(deleteImages);
 
+    // Delete reviews
     const review = room.flatMap((room) =>
       room.reviews.map((review) => review._id)
     );
     await Review.deleteMany({ _id: { $in: review } });
 
+    // Delete rooms
     await Room.deleteMany();
     res.status(200).json({ message: 'All rooms deleted!' });
   } catch (error) {
