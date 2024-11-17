@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 
 const complaintSchema = new mongoose.Schema(
   {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
     title: { type: String, required: true },
     description: { type: String, required: true },
     status: {
@@ -26,4 +31,4 @@ complaintSchema.method('toJSON', function () {
   return { id: _id, ...object };
 });
 
-module.exports = mongoose.model('complaint', complaintSchema);
+module.exports = mongoose.model('Complaint', complaintSchema);

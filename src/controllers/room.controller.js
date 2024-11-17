@@ -12,6 +12,11 @@ exports.findAll = async (req, res) => {
         path: 'user',
         select: 'fullName',
       },
+      path: 'complaints',
+      populate: {
+        path: 'user',
+        select: 'fullName',
+      },
     });
 
     // Check if rooms exist
