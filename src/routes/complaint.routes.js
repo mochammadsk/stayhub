@@ -8,12 +8,12 @@ module.exports = (app) => {
   dotenv.config();
 
   // Get all complaint
-  router.get('/', auth('admin'), (req, res) => {
+  router.get('/complaint', auth('admin'), (req, res) => {
     complaint.findAll(req, res);
   });
 
   // Get complaint by id
-  router.get('/:id', auth('admin'), (req, res) => {
+  router.get('/complaint/:id', auth('admin'), (req, res) => {
     complaint.findById(req, res);
   });
 
