@@ -5,9 +5,13 @@ const session = require('express-session');
 const swaggerConfig = require('./src/config/swagger');
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
+const dotenv = require('dotenv');
 
+// Create app
 const app = express();
-
+// Config dotenv
+dotenv.config();
+// Config swagger
 const swaggerSpec = swaggerJSDoc(swaggerConfig);
 
 // Middleware CORS & Parsing
@@ -16,7 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(
   cors({
-    origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+    origin: ['http://localhost:8000', 'http://127.0.0.1:8000'],
     method: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type'],
     credentials: true,
@@ -26,11 +30,11 @@ app.use(
 // Midelleware session
 app.use(
   session({
-    secret: 'StayHub',
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
     cookie: {
-      maxAge: 60000,
+      maxAge: 60000, // 1 minute
       secure: false,
     },
   })
@@ -41,10 +45,6 @@ app.use((req, res, next) => {
   console.log(`Incoming request: ${req.method} ${req.url}`);
   next();
 });
-
-// EJS
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, '/views'));
 
 // Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
