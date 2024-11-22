@@ -50,10 +50,19 @@ exports.create = async (req, res) => {
         secure: true,
       },
       customer_details: {
-        name: req.user.name,
+        first_name: req.user.name,
         email: req.user.email,
         phone: req.user.phone,
       },
+      item_details: [
+        {
+          id: room.id,
+          price: result.totalCost,
+          quantity: req.body.duration,
+          category: room.type,
+          name: room.name,
+        },
+      ],
     };
 
     const midtrans = await snap.createTransaction(parameter);
@@ -68,17 +77,32 @@ exports.create = async (req, res) => {
 };
 
 exports.update = async (req, res) => {
-  // Check if transaction exists
-  const transaction = await Transaction.findById(req.params.id);
-  if (!transaction) {
-    return res.status(404).json({ message: 'Transaction not found' });
+  const { status } = req.body;
+  // Validasi input status
+  const validStatuses = ['pending', 'completed', 'canceled'];
+  if (!status || !validStatuses.includes(status)) {
+    return res.status(400).json({ message: 'Invalid transaction status' });
   }
 
   try {
-    transaction.status = req.body.status;
+    // Cari transaksi berdasarkan ID
+    const transaction = await Transaction.findById(req.params.id);
+    if (!transaction) {
+      return res.status(404).json({ message: 'Transaction not found' });
+    }
+
+    // Perbarui status transaksi
+    transaction.status = status;
     await transaction.save();
-    res.status(200).json({ message: 'Transaction updated successfully' });
+
+    res.status(200).json({
+      message: 'Transaction updated successfully',
+      data: transaction,
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Internal Server Error', error });
+    res.status(500).json({
+      message: 'Internal Server Error',
+      error: error.message,
+    });
   }
 };
