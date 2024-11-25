@@ -10,7 +10,7 @@ module.exports = (app) => {
 
   // Get one
   router.get('/:id', auth('admin'), (req, res) => {
-    facility.getOne(req, res);
+    facility.getById(req, res);
   });
 
   // Create
@@ -25,7 +25,7 @@ module.exports = (app) => {
 
   // Delete one
   router.delete('/delete/:id', auth('admin'), (req, res) => {
-    facility.deleteOne(req, res);
+    facility.deleteById(req, res);
   });
 
   // Delete all
