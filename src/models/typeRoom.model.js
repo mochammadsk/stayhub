@@ -5,12 +5,6 @@ const typeRoomSchema = new mongoose.Schema(
     type: { type: String, required: true },
     facility: [{ type: mongoose.Schema.Types.ObjectId, ref: 'FacilityRoom' }],
     cost: { type: Number, required: true },
-    images: [
-      {
-        url: { type: String, required: true },
-        filename: { type: String, required: true },
-      },
-    ],
   },
   {
     timestamps: true,
