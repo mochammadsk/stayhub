@@ -8,7 +8,7 @@ module.exports = (app) => {
     facility.getAll(req, res);
   });
 
-  // Get one
+  // Get by id
   router.get('/:id', auth('admin'), (req, res) => {
     facility.getById(req, res);
   });
@@ -23,7 +23,7 @@ module.exports = (app) => {
     facility.update(req, res);
   });
 
-  // Delete one
+  // Delete by id
   router.delete('/delete/:id', auth('admin'), (req, res) => {
     facility.deleteById(req, res);
   });
