@@ -8,20 +8,22 @@ module.exports = (app) => {
 
   // Show data user
   router.get('/list/user', auth('admin'), (req, res) => {
-    admin.findAll(req, res);
+    admin.getAll(req, res);
   });
 
   // Show data user by id
   router.get('/list/user/:id', auth('admin'), (req, res) => {
-    admin.findById(req, res);
+    admin.getById(req, res);
   });
 
   // Update role user
-  router.put('/update/user/:id', auth('admin'), admin.updateRole);
+  router.put('/update/user/:id', auth('admin'), (req, res) => {
+    admin.updateRole;
+  });
 
   // Delete data user
   router.delete('/delete/user/:id', auth('admin'), (req, res) => {
-    admin.delete(req, res);
+    admin.deleteById(req, res);
   });
 
   app.use('/', router);
