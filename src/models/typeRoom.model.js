@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const typeRoomSchema = new mongoose.Schema(
   {
     type: { type: String, required: true },
-    facility: { type: String, required: true },
+    facility: [{ type: mongoose.Schema.Types.ObjectId, ref: 'FacilityRoom' }],
     cost: { type: Number, required: true },
     images: [
       {
