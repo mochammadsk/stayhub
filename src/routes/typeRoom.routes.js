@@ -26,7 +26,7 @@ module.exports = (app) => {
 
   // Delete one
   router.delete('/delete/:id', auth('admin'), (req, res) => {
-    type.deleteOne(req, res);
+    type.deleteById(req, res);
   });
 
   // Delete all
