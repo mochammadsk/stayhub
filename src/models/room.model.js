@@ -6,6 +6,12 @@ const roomSchema = new mongoose.Schema(
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'TypeRoom' }],
     reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }],
     complaints: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Complaint' }],
+    images: [
+      {
+        url: { type: String, required: true },
+        filename: { type: String, required: true },
+      },
+    ],
   },
   {
     timestamps: true,
