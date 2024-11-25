@@ -9,17 +9,17 @@ module.exports = (app) => {
 
   // Get all complaint
   router.get('/', auth('admin'), (req, res) => {
-    complaint.findAll(req, res);
+    complaint.getAll(req, res);
   });
 
   // Get complaint by id
   router.get('/:id', auth('admin'), (req, res) => {
-    complaint.findById(req, res);
+    complaint.getById(req, res);
   });
 
   // Create complaint
   router.post('/:id', auth('user'), complaintImages, (req, res) => {
-    complaint.add(req, res);
+    complaint.create(req, res);
   });
 
   // Update complaint by id
