@@ -4,19 +4,19 @@ module.exports = (app) => {
   const router = require('express').Router();
 
   // Create review
-  router.post('/review/:id', auth('user'), (req, res) => {
-    review.addReview(req, res);
+  router.post('/:id', auth('user'), (req, res) => {
+    review.create(req, res);
   });
 
   // Update review
-  router.put('/review/:id', auth('user'), (req, res) => {
-    review.updateReview(req, res);
+  router.put('/:id', auth('user'), (req, res) => {
+    review.update(req, res);
   });
 
   // Delete review
-  router.delete('/review/:id', auth('user'), (req, res) => {
-    review.deleteReview(req, res);
+  router.delete('/:id', auth('user'), (req, res) => {
+    review.delete(req, res);
   });
 
-  app.use('/room', router);
+  app.use('/review', router);
 };

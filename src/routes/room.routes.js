@@ -9,22 +9,22 @@ module.exports = (app) => {
 
   // Get all rooms
   router.get('/', (req, res) => {
-    room.findAll(req, res);
+    room.getAll(req, res);
   });
 
   // Get room by id
   router.get('/:id', (req, res) => {
-    room.findById(req, res);
+    room.getById(req, res);
   });
 
   // Create room
   router.post('/add', auth('admin'), roomImages, (req, res) => {
-    room.addRoom(req, res);
+    room.create(req, res);
   });
 
   // Update room by id
   router.put('/update/:id', auth('admin'), roomImages, (req, res) => {
-    room.updateRoom(req, res);
+    room.update(req, res);
   });
 
   // Delete room by id

@@ -8,29 +8,29 @@ module.exports = (app) => {
   dotenv.config();
 
   // Get all complaint
-  router.get('/complaint', auth('admin'), (req, res) => {
-    complaint.findAll(req, res);
+  router.get('/', auth('admin'), (req, res) => {
+    complaint.getAll(req, res);
   });
 
   // Get complaint by id
-  router.get('/complaint/:id', auth('admin'), (req, res) => {
-    complaint.findById(req, res);
+  router.get('/:id', auth('admin'), (req, res) => {
+    complaint.getById(req, res);
   });
 
   // Create complaint
-  router.post('/complaint/:id', auth('user'), complaintImages, (req, res) => {
-    complaint.add(req, res);
+  router.post('/:id', auth('user'), complaintImages, (req, res) => {
+    complaint.create(req, res);
   });
 
   // Update complaint by id
-  router.put('/complaint/:id', auth('user'), complaintImages, (req, res) => {
+  router.put('/:id', auth('user'), complaintImages, (req, res) => {
     complaint.update(req, res);
   });
 
   // Delete complaint by id
-  router.delete('/complaint/:id', auth('user'), (req, res) => {
+  router.delete('/:id', auth('user'), (req, res) => {
     complaint.deleteById(req, res);
   });
 
-  app.use('/room', router);
+  app.use('/complaint', router);
 };

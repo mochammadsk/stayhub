@@ -14,5 +14,5 @@ module.exports = (app) => {
     user.deletePhotoProfile(req, res);
   });
 
-  app.use('/', router);
+  app.use('/user', router);
 };
