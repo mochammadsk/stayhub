@@ -1,5 +1,5 @@
 module.exports = (app) => {
-  const review = require('../controllers/review.controller');
+  const review = require('../controllers/roomReview.controller');
   const { auth } = require('../middelware/auth.middleware');
   const router = require('express').Router();
 
@@ -15,7 +15,7 @@ module.exports = (app) => {
 
   // Delete review
   router.delete('/:id', auth('user'), (req, res) => {
-    review.delete(req, res);
+    review.deleteById(req, res);
   });
 
   app.use('/review', router);
