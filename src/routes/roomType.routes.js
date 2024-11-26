@@ -1,7 +1,6 @@
 module.exports = (app) => {
-  const type = require('../controllers/typeRoom.controller.js');
-  const { auth } = require('../middelware/auth.middleware');
-  const { roomImages } = require('../config/multer');
+  const type = require('../controllers/roomType.controller.js');
+  const { auth } = require('../middelware/auth.middleware.js');
   const router = require('express').Router();
 
   // Get all
@@ -9,24 +8,24 @@ module.exports = (app) => {
     type.getAll(req, res);
   });
 
-  // Get one
+  // Get by id
   router.get('/:id', auth('admin'), (req, res) => {
-    type.getOne(req, res);
+    type.getById(req, res);
   });
 
   // Create
-  router.post('/add', auth('admin'), roomImages, (req, res) => {
+  router.post('/add', auth('admin'), (req, res) => {
     type.create(req, res);
   });
 
   // Update
-  router.put('/update/:id', auth('admin'), roomImages, (req, res) => {
+  router.put('/update/:id', auth('admin'), (req, res) => {
     type.update(req, res);
   });
 
-  // Delete one
+  // Delete by id
   router.delete('/delete/:id', auth('admin'), (req, res) => {
-    type.deleteOne(req, res);
+    type.deleteById(req, res);
   });
 
   // Delete all

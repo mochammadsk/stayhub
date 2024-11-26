@@ -54,10 +54,10 @@ require('./src/routes/admin.routes')(app);
 require('./src/routes/auth.routes')(app);
 require('./src/routes/user.routes')(app);
 require('./src/routes/room.routes')(app);
-require('./src/routes/facilityRoom.routes')(app);
-require('./src/routes/typeRoom.routes')(app);
+require('./src/routes/roomFacility.routes')(app);
+require('./src/routes/roomReview.routes')(app);
+require('./src/routes/roomType.routes')(app);
 require('./src/routes/transaction.routes')(app);
-require('./src/routes/review.routes')(app);
 require('./src/routes/complaint.routes')(app);
 
 module.exports = app;
