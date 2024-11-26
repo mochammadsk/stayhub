@@ -1,4 +1,4 @@
-const Complaint = require('../models/complaint.model');
+const Complaint = require('../models/roomComplaint.model');
 const Room = require('../models/room.model');
 const path = require('path');
 const fs = require('fs').promises;
