@@ -1,6 +1,6 @@
 const Room = require('../models/room.model');
-const TypeRoom = require('../models/typeRoom.model');
-const Review = require('../models/review.model');
+const TypeRoom = require('../models/roomType.model');
+const Review = require('../models/roomReview.model');
 const path = require('path');
 const fs = require('fs').promises;
 
@@ -10,7 +10,7 @@ exports.getAll = async (req, res) => {
     const room = await Room.find()
       .populate({
         path: 'type',
-        select: 'type facility cost images',
+        select: 'name facility cost description',
       })
       .populate({
         path: 'reviews',
@@ -18,6 +18,7 @@ exports.getAll = async (req, res) => {
           path: 'user',
           select: 'fullName',
         },
+        select: 'rating comment',
       })
       .populate({
         path: 'complaints',
@@ -45,7 +46,7 @@ exports.getById = async (req, res) => {
     const room = await Room.findById(id)
       .populate({
         path: 'type',
-        select: 'type facility cost images',
+        select: 'name facility cost description',
       })
       .populate({
         path: 'reviews',
@@ -53,6 +54,7 @@ exports.getById = async (req, res) => {
           path: 'user',
           select: 'fullName',
         },
+        select: 'rating comment',
       })
       .populate({
         path: 'complaints',
