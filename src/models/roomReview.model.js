@@ -7,9 +7,16 @@ const reviewSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
+    room: { type: mongoose.Schema.Types.ObjectId, ref: 'Room', required: true },
     rating: {
       type: Number,
       required: true,
+      min: 0,
+      max: 5,
+      validate: {
+        validator: Number.isInteger,
+        message: 'Ratings must be integer',
+      },
     },
     comment: {
       type: String,
