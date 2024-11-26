@@ -1,5 +1,5 @@
 const Room = require('../models/room.model');
-const TypeRoom = require('../models/typeRoom.model');
+const TypeRoom = require('../models/roomType.model');
 const Review = require('../models/review.model');
 const path = require('path');
 const fs = require('fs').promises;
