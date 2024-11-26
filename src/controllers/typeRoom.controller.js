@@ -1,20 +1,20 @@
 const TypeRoom = require('../models/typeRoom.model');
+const FacilityRoom = require('../models/facilityRoom.model');
 const Room = require('../models/room.model');
 
 // Get all type room
 exports.getAll = async (req, res) => {
   try {
+    // Check data type room exist
     const typeRoom = await TypeRoom.find().populate({
       path: 'facility',
       select: 'name',
     });
-
-    // Check if type room exist
     if (typeRoom.length === 0) {
       return res.status(404).json({ message: 'Data not found' });
     }
 
-    res.status(200).json({ data: typeRoom });
+    res.status(200).json({ messages: 'Data found', data: typeRoom });
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error });
   }
@@ -24,8 +24,12 @@ exports.getAll = async (req, res) => {
 exports.getById = async (req, res) => {
   const id = req.params.id;
   try {
-    // Check data exist
-    const typeRoom = await TypeRoom.findById(id);
+    const typeRoom = await TypeRoom.findById(id).populate({
+      path: 'facility',
+      select: 'name',
+    });
+
+    // Check data type room exist
     if (!typeRoom) {
       return res.status(404).json({ message: 'Data not found' });
     }
@@ -38,19 +42,44 @@ exports.getById = async (req, res) => {
 
 // Create type room
 exports.create = async (req, res) => {
-  const { name, description, cost } = req.body;
+  const { name, facility, description, cost } = req.body;
   try {
     // Check data exists
-    const existingReview = await TypeRoom.findOne({ name });
-    if (existingReview) {
-      return res.status(404).json({ message: 'Type already exists' });
+    const existingType = await TypeRoom.findOne({ name });
+    if (existingType) {
+      return res.status(404).json({ message: `Data ${name} already exists` });
+    }
+
+    // Find facility IDs based on names
+    let facilityIds = [];
+    if (facility && facility.length > 0) {
+      const foundFacility = await FacilityRoom.find({
+        name: { $in: facility },
+      });
+
+      // Check if all facility are found
+      if (foundFacility.length !== facility.length) {
+        const missingFacilities = facility.filter(
+          (f) => !foundFacility.some((found) => found.name === f)
+        );
+        return res.status(400).json({
+          message: `Some facility not found: ${missingFacilities.join(', ')}`,
+        });
+      }
+
+      facilityIds = foundFacility.map((facility) => facility._id);
     }
 
     // Create data
-    const type = new TypeRoom({ name, description, cost });
+    const type = new TypeRoom({
+      name,
+      facility: facilityIds,
+      description,
+      cost,
+    });
     await type.save();
 
-    res.status(201).json({ messages: 'Created successfully', data: type });
+    res.status(201).json({ messages: 'Data created', data: type });
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error });
   }
@@ -58,7 +87,7 @@ exports.create = async (req, res) => {
 
 // Update typeRoom
 exports.update = async (req, res) => {
-  const { name, description, cost } = req.body;
+  const { name, facility, description, cost } = req.body;
   try {
     // Check if data exists
     const type = await TypeRoom.findById(req.params.id);
@@ -69,20 +98,39 @@ exports.update = async (req, res) => {
     // Check if type room name already exists
     const existingType = await TypeRoom.findOne({ name });
     if (existingType) {
-      return res
-        .status(409)
-        .json({ message: 'Type room with the same name already exists' });
+      return res.status(409).json({ message: `Data ${name} already exists` });
+    }
+
+    // Find facility IDs based on names
+    let facilityIds = [];
+    if (facility && facility.length > 0) {
+      const foundFacility = await FacilityRoom.find({
+        name: { $in: facility },
+      });
+
+      // Check if all facility are found
+      if (foundFacility.length !== facility.length) {
+        const missingFacilities = facility.filter(
+          (f) => !foundFacility.some((found) => found.name === f)
+        );
+        return res.status(400).json({
+          message: `Some facility not found: ${missingFacilities.join(', ')}`,
+        });
+      }
+
+      facilityIds = foundFacility.map((facility) => facility._id);
     }
 
     // Update data
     type.name = name || type.name;
+    type.facility = facilityIds || type.facility;
     type.description = description || type.description;
     type.cost = cost || type.cost;
 
     // Save data
     await type.save();
 
-    res.status(200).json({ message: 'Data updated successfully', data: type });
+    res.status(200).json({ message: 'Data updated', data: type });
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error });
   }
@@ -97,7 +145,7 @@ exports.deleteById = async (req, res) => {
       return res.status(404).json({ message: 'Data not found' });
     }
 
-    // Remove references from Room documents
+    // Remove references from Room table
     await Room.updateMany(
       { type: req.params.id },
       { $pull: { type: req.params.id } }
@@ -106,7 +154,7 @@ exports.deleteById = async (req, res) => {
     // Delete data
     await TypeRoom.findByIdAndDelete(req.params.id);
 
-    res.status(200).json({ message: 'Data deleted successfully' });
+    res.status(200).json({ message: 'Data deleted' });
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error });
   }
@@ -125,7 +173,7 @@ exports.deleteAll = async (req, res) => {
     const typeRooms = await TypeRoom.find();
     const typeRoomId = typeRooms.map((typeRoom) => typeRoom._id);
 
-    // Remove references from Room documents
+    // Remove references from Room table
     await Room.updateMany(
       { type: { $in: typeRoomId } },
       { $pull: { type: { $in: typeRoomId } } }
@@ -134,7 +182,7 @@ exports.deleteAll = async (req, res) => {
     // Delete data
     await TypeRoom.deleteMany();
 
-    res.status(200).json({ message: 'Data deleted successfully' });
+    res.status(200).json({ message: 'Data deleted' });
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error });
   }
