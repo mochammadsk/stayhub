@@ -26,6 +26,7 @@ exports.getAll = async (req, res) => {
           path: 'user',
           select: 'fullName',
         },
+        select: 'description status images',
       });
 
     // Check if rooms exist
@@ -62,6 +63,7 @@ exports.getById = async (req, res) => {
           path: 'user',
           select: 'fullName',
         },
+        select: 'description status images',
       });
 
     // Check if room exists
@@ -82,13 +84,21 @@ exports.create = async (req, res) => {
     // Check if room name already exists
     const existingRoom = await Room.findOne({ name });
     if (existingRoom) {
-      return res.status(404).json({ message: 'Room already exists' });
+      // Delete images if data not found
+      if (req.files && req.files.length > 0) {
+        await Promise.all(req.files.map((file) => fs.unlink(file.path)));
+      }
+      return res.status(404).json({ message: `Data ${name} already exists` });
     }
 
     // Check if type room exists
-    const typeRoom = await TypeRoom.findOne({ type });
+    const typeRoom = await TypeRoom.findOne({ name: type });
     if (!typeRoom) {
-      return res.status(404).json({ message: 'Type Data not found' });
+      // Delete images if data not found
+      if (req.files && req.files.length > 0) {
+        await Promise.all(req.files.map((file) => fs.unlink(file.path)));
+      }
+      return res.status(404).json({ message: `Data ${type} not found` });
     }
 
     // Upload images
