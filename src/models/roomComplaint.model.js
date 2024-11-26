@@ -7,6 +7,7 @@ const complaintSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
+    room: { type: mongoose.Schema.Types.ObjectId, ref: 'Room', required: true },
     title: { type: String, required: true },
     description: { type: String, required: true },
     status: {

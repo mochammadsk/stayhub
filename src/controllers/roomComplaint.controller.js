@@ -12,10 +12,10 @@ exports.getAll = async (req, res) => {
       select: 'fullName',
     });
     if (complaint.length === 0) {
-      return res.status(404).json({ message: 'No complaints found' });
+      return res.status(404).json({ message: 'Data not found' });
     }
 
-    res.status(200).json({ message: 'Complaints found', data: complaint });
+    res.status(200).json({ message: 'Data found', data: complaint });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: 'Internal Server Error', error });
@@ -44,40 +44,52 @@ exports.getById = async (req, res) => {
 exports.create = async (req, res) => {
   const { title, description } = req.body;
   try {
-    // Check if room exists
+    // Check data room exists
     const room = await Room.findById(req.params.id);
     if (!room) {
-      return res.status(404).json({ message: 'Room not found' });
+      // Delete images if data not found
+      if (req.files && req.files.length > 0) {
+        await Promise.all(req.files.map((file) => fs.unlink(file.path)));
+      }
+      return res.status(404).json({ message: 'Data not found' });
     }
+
     // Check if complaint already exists
     const existingComplaint = await Complaint.findOne({
-      room: room._id,
       user: req.user.id,
+      room: room._id,
     });
     if (existingComplaint) {
+      // Delete images if data not found
+      if (req.files && req.files.length > 0) {
+        await Promise.all(req.files.map((file) => fs.unlink(file.path)));
+      }
       return res.status(409).json({ message: 'Complaint already exists' });
     }
+
     // Upload images
     const images = req.files.map((file) => ({
       url: file.path,
       filename: file.filename,
     }));
+
     // Create complaint
     const complaint = new Complaint({
       user: req.user.id,
+      room: room._id,
       title,
       description,
       images,
     });
-    // Save complaint
+
+    // Save data complaint
     await complaint.save();
-    // Add complaint to room
+
+    // Add data complaint to room
     room.complaints.push(complaint._id);
     await room.save();
 
-    res
-      .status(201)
-      .json({ message: 'Complaint created successfully', data: complaint });
+    res.status(201).json({ message: 'Data created', data: complaint });
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error });
   }
@@ -87,17 +99,8 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
   const { title, description } = req.body;
   try {
-    // Check if user is authenticated
-    if (!req.user || !req.user.id) {
-      return res.status(400).json({ message: 'User ID is missing' });
-    }
-    // Check if room exists
-    const room = await Room.findById(req.params.id).populate('complaints');
-    if (!room) {
-      return res.status(404).json({ message: 'Room not found' });
-    }
-    // Check if complaint exists
-    const complaint = await Complaint.findById(room.complaints[0]._id);
+    // Check data exists
+    const complaint = await Complaint.findById(req.params.id);
     if (!complaint) {
       // Delete images if complaint not found
       if (req.files && req.files.length > 0) {
@@ -105,10 +108,12 @@ exports.update = async (req, res) => {
       }
       return res.status(404).json({ message: 'Complaint not found' });
     }
-    // Update complaint
+
+    // Update data
     complaint.title = title || complaint.title;
     complaint.description = description || complaint.description;
-    //
+
+    // Upload images
     if (req.files && req.files.length > 0) {
       // Delete old images
       if (complaint.images && complaint.images.length > 0) {
@@ -125,12 +130,12 @@ exports.update = async (req, res) => {
         filename: file.filename,
       }));
     }
-    // Save complaint
+
+    // Save data
     await complaint.save();
 
-    res.status(200).json({ message: 'Complaint updated!', complaint });
+    res.status(200).json({ message: 'Data updated', data: complaint });
   } catch (error) {
-    console.log(error);
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
@@ -138,20 +143,12 @@ exports.update = async (req, res) => {
 // Delete complaint by id
 exports.deleteById = async (req, res) => {
   try {
-    // Check if user is authenticated
-    if (!req.user || !req.user.id) {
-      return res.status(400).json({ message: 'User ID is missing' });
-    }
-    // Check if room exists
-    const room = await Room.findById(req.params.id).populate('complaints');
-    if (!room) {
-      return res.status(404).json({ message: 'Room not found' });
-    }
-    // Check if complaint exists
-    const complaint = await Complaint.findById(room.complaints[0]._id);
+    // Check data exists
+    const complaint = await Complaint.findById(req.params.id);
     if (!complaint) {
-      return res.status(404).json({ message: 'Complaint not found' });
+      return res.status(404).json({ message: 'Data not found' });
     }
+
     // Delete images
     const deleteImages = complaint.images.map((image) => {
       const filePath = path.resolve(
@@ -162,15 +159,17 @@ exports.deleteById = async (req, res) => {
       return fs.unlink(filePath);
     });
     await Promise.all(deleteImages);
+
+    // Remove references from Room table
+    await Room.updateOne(
+      { complaints: req.params.id },
+      { $pull: { complaints: req.params.id } }
+    );
+
     // Delete complaint
     await Complaint.findByIdAndDelete(complaint.id);
-    // Delete complaint from room
-    room.complaints = room.complaints.filter(
-      (r) => r._id.toString() !== complaint._id.toString()
-    );
-    await room.save();
 
-    res.status(200).json({ message: 'Complaint deleted' });
+    res.status(200).json({ message: 'Data deleted' });
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error });
   }
