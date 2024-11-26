@@ -20,7 +20,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(
   cors({
-    origin: ['http://localhost:8000', 'http://127.0.0.1:8000', 'http://localhost:5173'],
+    origin: [
+      'http://localhost:8000',
+      'http://127.0.0.1:8000',
+      'http://localhost:5173',
+    ],
     method: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type'],
     credentials: true,
@@ -55,9 +59,9 @@ require('./src/routes/auth.routes')(app);
 require('./src/routes/user.routes')(app);
 require('./src/routes/room.routes')(app);
 require('./src/routes/roomFacility.routes')(app);
-require('./src/routes/roomReview.routes')(app);
 require('./src/routes/roomType.routes')(app);
+require('./src/routes/roomReview.routes')(app);
+require('./src/routes/roomComplaint.routes')(app);
 require('./src/routes/transaction.routes')(app);
-require('./src/routes/complaint.routes')(app);
 
 module.exports = app;
