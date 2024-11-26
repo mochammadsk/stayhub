@@ -1,9 +1,10 @@
 const FacilityRoom = require('../models/facilityRoom.model');
+const TypeRoom = require('../models/typeRoom.model');
 
 // Get all facility
 exports.getAll = async (req, res) => {
   try {
-    // Check data type exist
+    // Check data facility room exist
     const facility = await FacilityRoom.find();
     if (facility.length === 0) {
       return res.status(404).json({ message: 'Data not found' });
@@ -56,8 +57,8 @@ exports.update = async (req, res) => {
   const { name } = req.body;
   try {
     // Check if type exist
-    const facilityRoom = await FacilityRoom.findById(req.params.id);
-    if (!facilityRoom) {
+    const facility = await FacilityRoom.findById(req.params.id);
+    if (!facility) {
       return res.status(404).json({ message: 'Data not found' });
     }
 
@@ -68,12 +69,12 @@ exports.update = async (req, res) => {
     }
 
     // Update data
-    facilityRoom.name = name || facilityRoom.name;
+    facility.name = name || facility.name;
 
     // Save Facility Room
-    await facilityRoom.save();
+    await facility.save();
 
-    res.status(200).json({ message: 'Data updated', data: facilityRoom });
+    res.status(200).json({ message: 'Data updated', data: facility });
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error });
   }
@@ -83,10 +84,16 @@ exports.update = async (req, res) => {
 exports.deleteById = async (req, res) => {
   try {
     // Check if type exist
-    const facilityRoom = await FacilityRoom.findById(req.params.id);
-    if (!facilityRoom) {
+    const facility = await FacilityRoom.findById(req.params.id);
+    if (!facility) {
       return res.status(404).json({ message: 'Data not found' });
     }
+
+    // Remove the facility reference from all TypeRoom documents
+    await TypeRoom.updateMany(
+      { facility: req.params.id },
+      { $pull: { facility: req.params.id } }
+    );
 
     // Delete facilityRoom
     await FacilityRoom.findByIdAndDelete(req.params.id);
@@ -101,16 +108,27 @@ exports.deleteById = async (req, res) => {
 exports.deleteAll = async (req, res) => {
   try {
     // Check if type exist
-    const facilityRoom = await FacilityRoom.find();
-    if (facilityRoom.length === 0) {
+    const facility = await FacilityRoom.find();
+    if (facility.length === 0) {
       return res.status(404).json({ message: 'Data not found' });
     }
+
+    // Get facility room id
+    const facilityRoom = await FacilityRoom.find();
+    const facilityId = facilityRoom.map((facility) => facility._id);
+
+    // Remove references from TypeRoom documents
+    await TypeRoom.updateMany(
+      { facility: { $in: facilityId } },
+      { $pull: { facility: { $in: facilityId } } }
+    );
 
     // Delete facilityRoom
     await FacilityRoom.deleteMany();
 
     res.status(200).json({ message: 'Data deleted' });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
