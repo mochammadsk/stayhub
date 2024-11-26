@@ -89,7 +89,7 @@ exports.deleteById = async (req, res) => {
       return res.status(404).json({ message: 'Data not found' });
     }
 
-    // Remove the facility reference from all TypeRoom documents
+    // Remove the facility reference from all TypeRoom table
     await TypeRoom.updateMany(
       { facility: req.params.id },
       { $pull: { facility: req.params.id } }
@@ -117,7 +117,7 @@ exports.deleteAll = async (req, res) => {
     const facilityRoom = await FacilityRoom.find();
     const facilityId = facilityRoom.map((facility) => facility._id);
 
-    // Remove references from TypeRoom documents
+    // Remove references from TypeRoom table
     await TypeRoom.updateMany(
       { facility: { $in: facilityId } },
       { $pull: { facility: { $in: facilityId } } }
