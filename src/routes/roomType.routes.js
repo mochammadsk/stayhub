@@ -1,6 +1,6 @@
 module.exports = (app) => {
-  const type = require('../controllers/typeRoom.controller.js');
-  const { auth } = require('../middelware/auth.middleware');
+  const type = require('../controllers/roomType.controller.js');
+  const { auth } = require('../middelware/auth.middleware.js');
   const router = require('express').Router();
 
   // Get all

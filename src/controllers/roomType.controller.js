@@ -1,5 +1,5 @@
-const TypeRoom = require('../models/typeRoom.model');
-const FacilityRoom = require('../models/facilityRoom.model');
+const TypeRoom = require('../models/roomType.model');
+const FacilityRoom = require('../models/roomFacility.model');
 const Room = require('../models/room.model');
 
 // Get all type room

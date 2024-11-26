@@ -1,5 +1,5 @@
-const FacilityRoom = require('../models/facilityRoom.model');
-const TypeRoom = require('../models/typeRoom.model');
+const FacilityRoom = require('../models/roomFacility.model');
+const TypeRoom = require('../models/roomType.model');
 
 // Get all facility
 exports.getAll = async (req, res) => {

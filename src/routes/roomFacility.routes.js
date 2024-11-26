@@ -1,6 +1,6 @@
 module.exports = (app) => {
-  const facility = require('../controllers/facilityRoom.controller.js');
-  const { auth } = require('../middelware/auth.middleware');
+  const facility = require('../controllers/roomFacility.controller.js');
+  const { auth } = require('../middelware/auth.middleware.js');
   const router = require('express').Router();
 
   // Get all
