@@ -1,15 +1,16 @@
-const Review = require('../models/review.model');
+const Review = require('../models/roomReview.model');
 const Room = require('../models/room.model');
 
 // Create Review
 exports.create = async (req, res) => {
   const { rating, comment } = req.body;
   try {
-    // Check if room exists
+    // Check data room exists
     const room = await Room.findById(req.params.id);
     if (!room) {
-      return res.status(404).json({ message: 'Room not found' });
+      return res.status(404).json({ message: 'Data not found' });
     }
+
     // Check if user has already reviewed the room
     const existingReview = await Review.findOne({
       room: room._id,
@@ -20,20 +21,21 @@ exports.create = async (req, res) => {
         .status(400)
         .json({ message: 'You have already reviewed this room' });
     }
+
     // Create review
     const review = new Review({
       user: req.user.id,
+      room: room._id,
       rating,
       comment,
     });
     await review.save();
+
     // Add review to room
     room.reviews.push(review._id);
     await room.save();
 
-    res
-      .status(201)
-      .json({ message: 'Review added successfully', data: review });
+    res.status(201).json({ message: 'Data created', data: review });
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error });
   }
@@ -43,22 +45,20 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
   const { rating, comment } = req.body;
   try {
-    // Check if room exists
-    const room = await Room.findById(req.params.id).populate('reviews');
-    if (!room) {
-      return res.status(404).json({ message: 'Room not found' });
-    }
-    // Check if user has already reviewed the room
-    const review = await Review.findById(room.reviews[0]._id);
+    // Check data exist
+    const review = await Review.findById(req.params.id);
     if (!review) {
-      return res.status(404).json({ message: 'Review not found' });
+      return res.status(404).json({ message: 'Data not found' });
     }
-    // Update review
+
+    // Update data
     review.rating = rating;
     review.comment = comment;
+
+    // Save data
     await review.save();
 
-    res.status(200).json({ message: 'Update success' });
+    res.status(200).json({ message: 'Data updated', data: review });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: 'Internal server eror', error });
@@ -66,27 +66,24 @@ exports.update = async (req, res) => {
 };
 
 // Delete review
-exports.delete = async (req, res) => {
+exports.deleteById = async (req, res) => {
   try {
-    // Check if room exists
-    const room = await Room.findById(req.params.id).populate('reviews');
-    if (!room) {
-      return res.status(404).json({ message: 'Room not found' });
-    }
     // Check if user has already reviewed the room
-    const review = await Review.findById(room.reviews[0]._id);
+    const review = await Review.findById(req.params.id);
     if (!review) {
-      return res.status(404).json({ message: 'Review not found' });
+      return res.status(404).json({ message: 'Data not found' });
     }
-    // Delete review
-    await Review.findByIdAndDelete(review._id);
-    // Delete review from room
-    room.reviews = room.reviews.filter(
-      (r) => r._id.toString() !== review._id.toString()
-    );
-    await room.save();
 
-    res.status(200).json({ message: 'Review deleted successfully' });
+    // Remove references from Room table
+    await Room.updateOne(
+      { reviews: req.params.id },
+      { $pull: { reviews: req.params.id } }
+    );
+
+    // Delete data
+    await Review.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({ message: 'Data deleted' });
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error });
   }
