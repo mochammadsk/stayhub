@@ -3,38 +3,22 @@ const FacilityRoom = require('../models/roomFacility.model');
 const Room = require('../models/room.model');
 
 // Get all type room
-// Get all type room
 exports.getAll = async (req, res) => {
   try {
+    // Check data type room exist
     const typeRoom = await TypeRoom.find().populate({
       path: 'facility',
       select: 'name',
     });
-
-    const safeData = typeRoom.map((room) => ({
-      id: room._id,
-      name: room.name, // Pastikan `name` diambil dari model TypeRoom
-      facility: room.facility || [],
-      description: room.description,
-      cost: room.cost,
-      createdAt: room.createdAt,
-      updatedAt: room.updatedAt,
-    }));
-
-    console.log("Fetched Data (transformed):", safeData);
-
-    if (safeData.length === 0) {
+    if (typeRoom.length === 0) {
       return res.status(404).json({ message: 'Data not found' });
     }
 
-    res.status(200).json({ messages: 'Data found', data: safeData });
+    res.status(200).json({ messages: 'Data found', data: typeRoom });
   } catch (error) {
-    console.error("Error in getAll:", error);
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
-
-
 
 // Get one type room
 exports.getById = async (req, res) => {
@@ -59,51 +43,44 @@ exports.getById = async (req, res) => {
 // Create type room
 exports.create = async (req, res) => {
   const { name, facility, description, cost } = req.body;
-  console.log("Data diterima dari frontend:", { name, facility, description, cost });
-
   try {
-    // Cek apakah tipe kamar dengan nama yang sama sudah ada
+    // Check data exists
     const existingType = await TypeRoom.findOne({ name });
     if (existingType) {
-      console.log(`Tipe kamar dengan nama "${name}" sudah ada.`);
-      return res.status(400).json({ message: `Data ${name} already exists` });
+      return res.status(404).json({ message: `Data ${name} already exists` });
     }
 
-    // Validasi fasilitas berdasarkan nama
-    const foundFacility = await FacilityRoom.find({
-      name: { $in: facility },
-    });
-    console.log("Fasilitas ditemukan:", foundFacility);
-
-    // Jika jumlah fasilitas yang ditemukan tidak sesuai dengan yang dikirim
-    if (foundFacility.length !== facility.length) {
-      const missingFacilities = facility.filter(
-        (f) => !foundFacility.some((found) => found.name === f)
-      );
-      console.log("Fasilitas yang tidak ditemukan:", missingFacilities);
-      return res.status(400).json({
-        message: `Some facility not found: ${missingFacilities.join(', ')}`,
+    // Find facility IDs based on names
+    let facilityIds = [];
+    if (facility && facility.length > 0) {
+      const foundFacility = await FacilityRoom.find({
+        name: { $in: facility },
       });
+
+      // Check if all facility are found
+      if (foundFacility.length !== facility.length) {
+        const missingFacilities = facility.filter(
+          (f) => !foundFacility.some((found) => found.name === f)
+        );
+        return res.status(400).json({
+          message: `Some facility not found: ${missingFacilities.join(', ')}`,
+        });
+      }
+
+      facilityIds = foundFacility.map((facility) => facility._id);
     }
 
-    // Ambil ID fasilitas yang ditemukan
-    const facilityIds = foundFacility.map((facility) => facility._id);
-    console.log("ID fasilitas yang akan disimpan:", facilityIds);
-
-    // Buat data tipe kamar baru
+    // Create data
     const type = new TypeRoom({
       name,
-      facility: facilityIds, // Simpan ID fasilitas
+      facility: facilityIds,
       description,
       cost,
     });
-
-    await type.save(); // Simpan ke database
-    console.log("Tipe kamar berhasil dibuat:", type);
+    await type.save();
 
     res.status(201).json({ messages: 'Data created', data: type });
   } catch (error) {
-    console.error("Error creating type room:", error);
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
@@ -111,15 +88,15 @@ exports.create = async (req, res) => {
 // Update typeRoom
 exports.update = async (req, res) => {
   const { name, facility, description, cost } = req.body;
-
   try {
+    // Check if data exists
     const type = await TypeRoom.findById(req.params.id);
     if (!type) {
       return res.status(404).json({ message: 'Data not found' });
     }
 
-    // Check if type room name already exists (excluding current one)
-    const existingType = await TypeRoom.findOne({ name, _id: { $ne: req.params.id } });
+    // Check if type room name already exists
+    const existingType = await TypeRoom.findOne({ name });
     if (existingType) {
       return res.status(409).json({ message: `Data ${name} already exists` });
     }
@@ -131,6 +108,7 @@ exports.update = async (req, res) => {
         name: { $in: facility },
       });
 
+      // Check if all facility are found
       if (foundFacility.length !== facility.length) {
         const missingFacilities = facility.filter(
           (f) => !foundFacility.some((found) => found.name === f)
@@ -145,46 +123,42 @@ exports.update = async (req, res) => {
 
     // Update data
     type.name = name || type.name;
-    type.facility = facilityIds.length > 0 ? facilityIds : type.facility;
+    type.facility = facilityIds || type.facility;
     type.description = description || type.description;
     type.cost = cost || type.cost;
 
+    // Save data
     await type.save();
 
-    res.status(200).json({ message: 'Data updated successfully', data: type });
+    res.status(200).json({ message: 'Data updated', data: type });
   } catch (error) {
-    console.error('Error updating type room:', error);
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
 
-
 // Delete one typeRoom
 exports.deleteById = async (req, res) => {
   try {
+    // Check if data exists
     const type = await TypeRoom.findById(req.params.id);
     if (!type) {
       return res.status(404).json({ message: 'Data not found' });
     }
 
-    // Check if any room is using this type
-    const relatedRooms = await Room.find({ type: req.params.id });
-    if (relatedRooms.length > 0) {
-      return res.status(400).json({
-        message: `Cannot delete typeRoom. ${relatedRooms.length} room(s) are using this type.`,
-      });
-    }
+    // Remove references from Room table
+    await Room.updateMany(
+      { type: req.params.id },
+      { $pull: { type: req.params.id } }
+    );
 
+    // Delete data
     await TypeRoom.findByIdAndDelete(req.params.id);
 
-    res.status(200).json({ message: 'Data deleted successfully' });
+    res.status(200).json({ message: 'Data deleted' });
   } catch (error) {
-    console.error('Error deleting typeRoom:', error);
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
-
-
 
 // Delete all typeRoom
 exports.deleteAll = async (req, res) => {
