@@ -61,9 +61,12 @@ const fileFilter = (req, file, cb) => {
   if (mimetype && extname) {
     return cb(null, true);
   } else {
-    cb(new Error('Only .jpeg, .jpg, and .png files are allowed!'));
+    const error = new Error('Only .jpeg, .jpg, and .png files are allowed!');
+    error.code = 'LIMIT_FILE_TYPE'; // Tambahkan kode khusus untuk mempermudah handling
+    return cb(error);
   }
 };
+
 
 const profileImages = multer({
   storage: profileStorage,
@@ -75,7 +78,7 @@ const roomImages = multer({
   storage: roomStorage,
   limits: { fileSize: 2 * 1024 * 1024 },
   fileFilter: fileFilter,
-}).array('roomImages', 5);
+}).array('roomImages', 5); // Pastikan key 'images' sesuai dengan frontend
 
 const complaintImages = multer({
   storage: complaintStorage,
