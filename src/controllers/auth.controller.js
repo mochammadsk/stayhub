@@ -104,7 +104,7 @@ exports.login = async (req, res) => {
     }
 
     // Check if email is verified
-    if (!user || !user.verified || !admin || !admin.verified) {
+    if ((user && !user.verified) || (admin && !admin.verified)) {
       return res.status(400).json({ message: 'Email not verified' });
     }
 
@@ -123,17 +123,21 @@ exports.login = async (req, res) => {
         name: admin ? admin.userName : user.fullName,
         email: admin ? admin.email : user.email,
         phone: admin ? admin.phone : user.phone,
-        role: admin ? admin.role : user.role,
       },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
 
-    return res.header(`Authorization`, `Bearer ${token}`).status(200).json({
-      messages: 'Login Succesfully',
-      token: token,
-    });
+    return res
+      .header(`Authorization`, `Bearer ${token}`)
+      .status(200)
+      .json({
+        messages: 'Login Succesfully',
+        token: token,
+        role: admin ? admin.role : user.role,
+      });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
