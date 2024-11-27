@@ -1,5 +1,5 @@
 module.exports = (app) => {
-  const complaint = require('../controllers/complaint.controller');
+  const complaint = require('../controllers/roomComplaint.controller');
   const { auth } = require('../middelware/auth.middleware');
   const { complaintImages } = require('../config/multer');
   const dotenv = require('dotenv');

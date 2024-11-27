@@ -21,12 +21,15 @@ exports.register = async (req, res) => {
     // Hash password
     const hashedPassword = await argon2.hash(req.body.password);
     req.body.password = hashedPassword;
+
     // Create data
     const createdUser = await User.create(req.body);
     console.log('User created successfully:', createdUser);
+
     // Create verification token
     const uniqueString = uuidv4() + createdUser._id;
     const hashedUniqueString = await bcrypt.hash(uniqueString, 10);
+
     // Create record for verification
     const userVerification = new UserVerification({
       userId: createdUser._id,
@@ -62,6 +65,7 @@ exports.verifyEmail = async (req, res) => {
     const record = await UserVerification.findOne({});
     if (record) {
       const isMatch = await bcrypt.compare(uniqueString, record.uniqueString);
+
       // Update data
       if (isMatch) {
         await User.updateOne({ _id: record.userId }, { verified: true });
@@ -91,12 +95,19 @@ exports.verifyEmail = async (req, res) => {
 exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
-    // Check if email exists
+    // // Check data email exists
     const admin = await Admin.findOne({ email });
     const user = !admin ? await User.findOne({ email }) : null;
     if (!user && !admin) {
+      console.log(user);
       return res.status(400).json({ message: 'Email not found' });
     }
+
+    // Check if email is verified
+    if (!user || !user.verified || !admin || !admin.verified) {
+      return res.status(400).json({ message: 'Email not verified' });
+    }
+
     // Check if password is correct
     const match = admin
       ? await argon2.verify(admin.password, password)
@@ -104,6 +115,7 @@ exports.login = async (req, res) => {
     if (!match) {
       return res.status(400).json({ message: 'Wrong password!' });
     }
+
     // Create token
     const token = jwt.sign(
       {
@@ -117,12 +129,12 @@ exports.login = async (req, res) => {
       { expiresIn: '1h' }
     );
 
-    return res
-      .header(`Authorization`, `Bearer ${token}`)
-      .status(200)
-      .json({ messages: 'Login Succesful!', token });
+    return res.header(`Authorization`, `Bearer ${token}`).status(200).json({
+      messages: 'Login Succesfully',
+      token: token,
+    });
   } catch (error) {
-    res.status(500).json(error);
+    res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
 

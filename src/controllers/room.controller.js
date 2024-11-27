@@ -7,13 +7,31 @@ const fs = require('fs').promises;
 // Get all rooms
 exports.getAll = async (req, res) => {
   try {
-    const rooms = await Room.find()
-      .populate('type', 'name facility cost description')
-      .populate('reviews', 'rating comment')
-      .populate('complaints', 'user');
+    const room = await Room.find()
+      .populate({
+        path: 'type',
+        select: 'name facility cost description',
+      })
+      .populate({
+        path: 'reviews',
+        populate: {
+          path: 'user',
+          select: 'fullName',
+        },
+        select: 'rating comment',
+      })
+      .populate({
+        path: 'complaints',
+        populate: {
+          path: 'user',
+          select: 'fullName',
+        },
+        select: 'description status images',
+      });
 
-    if (rooms.length === 0) {
-      return res.status(200).json({ message: 'No rooms available', data: [] });
+    // Check if rooms exist
+    if (room.length === 0) {
+      return res.status(404).json({ message: 'Data not found' });
     }
 
     res.status(200).json({ message: 'Rooms fetched successfully', data: rooms });
@@ -27,11 +45,30 @@ exports.getAll = async (req, res) => {
 // Get room by id
 exports.getById = async (req, res) => {
   try {
-    const room = await Room.findById(req.params.id)
-      .populate('type', 'name facility cost description')
-      .populate('reviews', 'rating comment')
-      .populate('complaints', 'user');
+    const id = req.params.id;
+    const room = await Room.findById(id)
+      .populate({
+        path: 'type',
+        select: 'name facility cost description',
+      })
+      .populate({
+        path: 'reviews',
+        populate: {
+          path: 'user',
+          select: 'fullName',
+        },
+        select: 'rating comment',
+      })
+      .populate({
+        path: 'complaints',
+        populate: {
+          path: 'user',
+          select: 'fullName',
+        },
+        select: 'description status images',
+      });
 
+    // Check if room exists
     if (!room) {
       return res.status(404).json({ message: 'Room not found' });
     }
@@ -46,10 +83,24 @@ exports.getById = async (req, res) => {
 // Create room
 exports.create = async (req, res) => {
   try {
-    const { name, type } = req.body;
+    // Check if room name already exists
+    const existingRoom = await Room.findOne({ name });
+    if (existingRoom) {
+      // Delete images if data not found
+      if (req.files && req.files.length > 0) {
+        await Promise.all(req.files.map((file) => fs.unlink(file.path)));
+      }
+      return res.status(404).json({ message: `Data ${name} already exists` });
+    }
 
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).json({ message: 'No images uploaded' });
+    // Check if type room exists
+    const typeRoom = await TypeRoom.findOne({ name: type });
+    if (!typeRoom) {
+      // Delete images if data not found
+      if (req.files && req.files.length > 0) {
+        await Promise.all(req.files.map((file) => fs.unlink(file.path)));
+      }
+      return res.status(404).json({ message: `Data ${type} not found` });
     }
 
     const images = req.files.map((file) => ({
