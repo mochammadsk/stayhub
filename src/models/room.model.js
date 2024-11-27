@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 
 const roomSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true },
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'TypeRoom' }],
+    name: { type: String, required: true, unique: true },
+    type: { type: mongoose.Schema.Types.ObjectId, ref: 'TypeRoom', required: true },
     reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }],
     complaints: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Complaint' }],
     images: [
