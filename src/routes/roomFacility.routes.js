@@ -4,27 +4,27 @@ module.exports = (app) => {
   const router = require('express').Router();
 
   // Get all
-  router.get('/', (req, res) => {
+  router.get('/', auth('admin'), (req, res) => {
     facility.getAll(req, res);
   });
 
   // Get by id
-  router.get('/:id', (req, res) => {
+  router.get('/:id', auth('admin'), (req, res) => {
     facility.getById(req, res);
   });
 
   // Create
-  router.post('/add', (req, res) => {
+  router.post('/add', auth('admin'), (req, res) => {
     facility.create(req, res);
   });
 
   // Update
-  router.put('/update/:id', (req, res) => {
+  router.put('/update/:id', auth('admin'), (req, res) => {
     facility.update(req, res);
   });
 
   // Delete by id
-  router.delete('/delete/:id', (req, res) => {
+  router.delete('/delete/:id', auth('admin'), (req, res) => {
     facility.deleteById(req, res);
   });
 
