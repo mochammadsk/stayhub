@@ -1,24 +1,25 @@
-const schema = require("../swagger/shema.swagger");
+const schema = require('../swagger/shema.swagger');
+const path = require('path');
 
 const swaggerConfig = {
   swaggerDefinition: {
-    openapi: "3.0.0",
+    openapi: '3.0.0',
     info: {
-      title: "API Documentation",
-      version: "1.0.0",
-      description: "API Documentation for StayHub",
+      title: 'API Documentation',
+      version: '1.0.0',
+      description: 'StayHub',
     },
     servers: [
       {
-        url: "http://localhost:8000",
+        url: 'http://localhost:8000',
       },
     ],
     components: {
       securitySchemes: {
         bearerAuth: {
-          type: "http",
-          scheme: "bearer",
-          bearerFormat: "JWT",
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
         },
       },
       schemas: {
@@ -26,7 +27,10 @@ const swaggerConfig = {
       },
     },
   },
-  apis: ["./app/routes/*.js", "./app/swagger/*.js"],
+  apis: [
+    path.resolve(__dirname, '../routes/*.js'),
+    path.resolve(__dirname, '../swagger/*.js'),
+  ],
 };
 
 module.exports = swaggerConfig;
