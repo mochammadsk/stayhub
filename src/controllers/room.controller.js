@@ -44,8 +44,7 @@ exports.getAll = async (req, res) => {
 // Get room by id
 exports.getById = async (req, res) => {
   try {
-    const id = req.params.id;
-    const room = await Room.findById(id)
+    const room = await Room.findById(req.params.id)
       .populate({
         path: 'type',
         select: 'name facility cost description',
