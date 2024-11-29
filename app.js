@@ -9,10 +9,12 @@ const dotenv = require('dotenv');
 
 // Create app
 const app = express();
+
 // Config dotenv
 dotenv.config();
+
 // Config swagger
-const swaggerSpec = swaggerJSDoc(swaggerConfig);
+const swaggerDocs = swaggerJSDoc(swaggerConfig);
 
 // Middleware CORS & Parsing
 app.use(express.json());
@@ -57,7 +59,7 @@ app.use((req, res, next) => {
 });
 
 // Swagger
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Call routes
 require('./src/routes/admin.routes')(app);

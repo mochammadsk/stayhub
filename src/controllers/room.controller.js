@@ -1,6 +1,7 @@
 const Room = require('../models/room.model');
 const TypeRoom = require('../models/roomType.model');
 const Review = require('../models/roomReview.model');
+const Complaint = require('../models/roomComplaint.model');
 const path = require('path');
 const fs = require('fs').promises;
 
@@ -114,10 +115,10 @@ exports.create = async (req, res) => {
       images,
     });
 
-    // Save
+    // Save data
     await room.save();
 
-    res.status(201).json({ message: 'Data created successfully', data: room });
+    res.status(201).json({ message: 'Data created', data: room });
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error });
   }
@@ -125,7 +126,7 @@ exports.create = async (req, res) => {
 
 // Update room
 exports.update = async (req, res) => {
-  const { name } = req.body;
+  const { name, type } = req.body;
   try {
     // Check if room exists
     const room = await Room.findById(req.params.id);
@@ -146,11 +147,24 @@ exports.update = async (req, res) => {
       }
       return res
         .status(409)
-        .json({ message: 'Room with the same name already exists' });
+        .json({ message: `Room with name ${name} already exists` });
+    }
+
+    // Check if type room exists
+    const typeRoom = await TypeRoom.findOne({ name: type });
+    if (!typeRoom) {
+      // Delete images if data not found
+      if (req.files && req.files.length > 0) {
+        await Promise.all(req.files.map((file) => fs.unlink(file.path)));
+      }
+      return res
+        .status(404)
+        .json({ message: `Data Type Room ${type} not found` });
     }
 
     // Update data
     room.name = name || room.name;
+    room.type = typeRoom._id || room.type;
 
     // Upload images
     if (req.files && req.files.length > 0) {
@@ -171,7 +185,7 @@ exports.update = async (req, res) => {
       }));
     }
 
-    // Save room
+    // Save data
     await room.save();
 
     res.status(200).json({ message: 'Data updated', data: room });
@@ -203,6 +217,10 @@ exports.deleteById = async (req, res) => {
     // Delete data reviews
     const review = room.reviews.map((review) => review._id);
     await Review.deleteMany({ _id: { $in: review } });
+
+    // Delete data complaints
+    const complaint = room.complaints.map((complaint) => complaint._id);
+    await Complaint.deleteMany({ _id: { $in: complaint } });
 
     // Delete data room
     await Room.findByIdAndDelete(req.params.id);
@@ -241,11 +259,18 @@ exports.deleteAll = async (req, res) => {
     );
     await Review.deleteMany({ _id: { $in: review } });
 
+    // Delete data complaints
+    const complaint = room.flatMap((room) =>
+      room.complaints.map((complaint) => complaint._id)
+    );
+    await Complaint.deleteMany({ _id: { $in: complaint } });
+
     // Delete data rooms
     await Room.deleteMany();
 
     res.status(200).json({ message: 'Data deleted' });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };

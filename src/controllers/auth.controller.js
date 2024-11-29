@@ -18,6 +18,7 @@ exports.register = async (req, res) => {
     if (user) {
       return res.status(400).json({ message: 'Email already exists' });
     }
+
     // Hash password
     const hashedPassword = await argon2.hash(req.body.password);
     req.body.password = hashedPassword;
@@ -37,6 +38,7 @@ exports.register = async (req, res) => {
       expiresAt: Date.now() + 3600000, // 1 hour
     });
     await userVerification.save();
+
     // Send verification email
     await sendVerificationEmail(
       createdUser.email,
@@ -45,11 +47,10 @@ exports.register = async (req, res) => {
     );
 
     return res.status(200).json({
-      message: 'Successful registration! Please verify your email.',
+      message: 'Successful registration! Please verify your email',
       user: createdUser,
     });
   } catch (error) {
-    console.error(error);
     res.status(500).json({
       message: 'Internal Server Error',
       error,
@@ -126,14 +127,14 @@ exports.login = async (req, res) => {
         role: admin ? admin.role : user.role,
       },
       process.env.JWT_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: '1d' }
     );
 
     return res
       .header(`Authorization`, `Bearer ${token}`)
       .status(200)
       .json({
-        messages: 'Login Succesfully',
+        message: 'Login Succesfully',
         token: token,
         role: admin ? admin.role : user.role,
       });
@@ -161,6 +162,7 @@ exports.googleAuthRedirect = (req, res) => {
     ],
     include_granted_scopes: true,
   });
+
   // Redirect
   res.redirect(authUrl);
 };
@@ -171,10 +173,12 @@ exports.googleAuthCallback = async (req, res) => {
     // Get access token
     const { tokens } = await oauth2Client.getToken(code);
     oauth2Client.setCredentials(tokens);
+
     // Get user info
     const userInfo = await google
       .oauth2({ version: 'v2', auth: oauth2Client })
       .userinfo.get();
+
     // Save user data to database
     User.findOneAndUpdate(
       {
@@ -209,10 +213,12 @@ exports.resetPassword = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: true, messages: 'User not found' });
     }
+
     // Create reset token and hash
     const resetToken = uuidv4();
     const hashedToken = bcrypt.hashSync(resetToken, 10);
     const expiresAt = Date.now() + 3600000; // 1 hour
+
     // Create record for password reset
     const newPasswordReset = new UserPasswordReset({
       userId: user._id,
@@ -220,17 +226,17 @@ exports.resetPassword = async (req, res) => {
       createdAt: Date.now(),
       expiresAt,
     });
+
     // Save record password reset
     await newPasswordReset.save();
+
     // Send email reset password
     await sendResetPasswordEmail(user.email, user.userName, resetToken);
     res.status(200).json({
-      error: false,
       messages: 'Password reset email sent',
     });
   } catch (error) {
     res.status(500).json({
-      error: true,
       messages: 'Error processing reset request',
     });
   }
@@ -251,6 +257,7 @@ exports.verifyResetPassword = async (req, res) => {
         messages: 'Invalid reset token',
       });
     }
+
     // Check if reset token has expired
     const { userId, expiresAt } = passwordReset;
     if (expiresAt < Date.now()) {
@@ -259,6 +266,7 @@ exports.verifyResetPassword = async (req, res) => {
         messages: 'Reset token has expired',
       });
     }
+
     // Find user
     const user = await User.findById(userId);
     if (!user) {
@@ -267,11 +275,14 @@ exports.verifyResetPassword = async (req, res) => {
         messages: 'User not found',
       });
     }
+
     // Update password
     const hashedPassword = await argon2.hash(newPassword);
     user.password = hashedPassword;
+
     // Save
     await user.save();
+
     // Delete record
     await UserPasswordReset.deleteOne({ _id: passwordReset._id });
 

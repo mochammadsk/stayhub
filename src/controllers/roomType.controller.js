@@ -77,6 +77,8 @@ exports.create = async (req, res) => {
       description,
       cost,
     });
+
+    // Save data
     await type.save();
 
     res.status(201).json({ messages: 'Data created', data: type });
