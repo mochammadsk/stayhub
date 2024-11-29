@@ -9,15 +9,29 @@ dotenv.config();
 const db = {
   url: process.env.DB_URL,
 };
+
 // Connection to database
-mongoose
-  .connect(db.url, db.mongooseConfig)
-  .then(() => console.log('Connected to database!'))
-  .catch((err) => {
+const connectDB = async () => {
+  try {
+    await mongoose.connect(db.url, db.mongooseConfig);
+    console.log('Connected to database!');
+  } catch (error) {
     console.log(`Failed to connect - ${err.message}`);
-    process.exit();
-  });
-// Create server port
-const PORT = process.env.PORT;
-const server = http.createServer(app);
-server.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+    process.exit(1);
+  }
+};
+
+// Create server port and start server
+const startServer = async () => {
+  await connectDB();
+
+  const PORT = process.env.PORT;
+  const server = http.createServer(app);
+  server.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+
+  return server;
+};
+
+startServer();
+
+module.exports = { connectDB, startServer };
