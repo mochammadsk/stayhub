@@ -127,7 +127,7 @@ exports.login = async (req, res) => {
         role: admin ? admin.role : user.role,
       },
       process.env.JWT_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: '1d' }
     );
 
     return res
@@ -162,6 +162,7 @@ exports.googleAuthRedirect = (req, res) => {
     ],
     include_granted_scopes: true,
   });
+
   // Redirect
   res.redirect(authUrl);
 };
@@ -172,10 +173,12 @@ exports.googleAuthCallback = async (req, res) => {
     // Get access token
     const { tokens } = await oauth2Client.getToken(code);
     oauth2Client.setCredentials(tokens);
+
     // Get user info
     const userInfo = await google
       .oauth2({ version: 'v2', auth: oauth2Client })
       .userinfo.get();
+
     // Save user data to database
     User.findOneAndUpdate(
       {
@@ -254,6 +257,7 @@ exports.verifyResetPassword = async (req, res) => {
         messages: 'Invalid reset token',
       });
     }
+
     // Check if reset token has expired
     const { userId, expiresAt } = passwordReset;
     if (expiresAt < Date.now()) {
@@ -262,6 +266,7 @@ exports.verifyResetPassword = async (req, res) => {
         messages: 'Reset token has expired',
       });
     }
+
     // Find user
     const user = await User.findById(userId);
     if (!user) {
@@ -270,11 +275,14 @@ exports.verifyResetPassword = async (req, res) => {
         messages: 'User not found',
       });
     }
+
     // Update password
     const hashedPassword = await argon2.hash(newPassword);
     user.password = hashedPassword;
+
     // Save
     await user.save();
+
     // Delete record
     await UserPasswordReset.deleteOne({ _id: passwordReset._id });
 
