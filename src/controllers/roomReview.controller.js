@@ -1,5 +1,5 @@
-const Review = require("../models/roomReview.model");
-const Room = require("../models/room.model");
+const Review = require('../models/roomReview.model');
+const Room = require('../models/room.model');
 
 // Create Review
 exports.create = async (req, res) => {
@@ -8,7 +8,7 @@ exports.create = async (req, res) => {
     // Check data room exists
     const room = await Room.findById(req.params.id);
     if (!room) {
-      return res.status(404).json({ message: "Data not found" });
+      return res.status(404).json({ message: 'Data not found' });
     }
 
     // Check if user has already reviewed the room
@@ -19,7 +19,7 @@ exports.create = async (req, res) => {
     if (existingReview) {
       return res
         .status(400)
-        .json({ message: "You have already reviewed this room" });
+        .json({ message: 'You have already reviewed this room' });
     }
 
     // Create review
@@ -35,9 +35,9 @@ exports.create = async (req, res) => {
     room.reviews.push(review._id);
     await room.save();
 
-    res.status(201).json({ message: "Data created", data: review });
+    res.status(201).json({ message: 'Data created', data: review });
   } catch (error) {
-    res.status(500).json({ message: "Internal Server Error", error });
+    res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
 
@@ -48,7 +48,7 @@ exports.update = async (req, res) => {
     // Check data exist
     const review = await Review.findById(req.params.id);
     if (!review) {
-      return res.status(404).json({ message: "Data not found" });
+      return res.status(404).json({ message: 'Data not found' });
     }
 
     // Update data
@@ -58,10 +58,10 @@ exports.update = async (req, res) => {
     // Save data
     await review.save();
 
-    res.status(200).json({ message: "Data updated", data: review });
+    res.status(200).json({ message: 'Data updated', data: review });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Internal server eror", error });
+    res.status(500).json({ message: 'Internal server eror', error });
   }
 };
 
@@ -71,7 +71,7 @@ exports.deleteById = async (req, res) => {
     // Check if user has already reviewed the room
     const review = await Review.findById(req.params.id);
     if (!review) {
-      return res.status(404).json({ message: "Data not found" });
+      return res.status(404).json({ message: 'Data not found' });
     }
 
     // Remove references from Room table
@@ -83,63 +83,35 @@ exports.deleteById = async (req, res) => {
     // Delete data
     await Review.findByIdAndDelete(req.params.id);
 
-    res.status(200).json({ message: "Data deleted" });
+    res.status(200).json({ message: 'Data deleted' });
   } catch (error) {
-    res.status(500).json({ message: "Internal Server Error", error });
-  }
-};
-
-exports.getRoomReviewsByIdReview = async (req, res) => {
-  try {
-    // Mencari ulasan berdasarkan id review
-    const reviews = await Review.findById(req.params.id)
-      .populate({
-        path: "room",
-        populate: {
-          path: "type",
-          select: "name",
-        },
-      })
-      .populate("user", "fullName"); // Ambil nama user
-
-    if (reviews.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No reviews found for this user." });
-    }
-
-    res.status(200).json({ message: "Data found", data: reviews });
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching data", error });
+    res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
 
 // Get room reviews by user ID
-exports.getRoomReviewsByIdUser = async (req, res) => {
+exports.getById = async (req, res) => {
   try {
-    // Ambil userId dari request parameter atau token jika menggunakan middleware autentikasi
-    const userId = req.user._id; // Jika menggunakan token JWT yang sudah di-decode di middleware
-
     // Cari reviews berdasarkan userId
-    const reviews = await Review.find({ user: userId })
+    const reviews = await Review.find({ user: req.user.id })
+      .populate('user', 'fullName')
       .populate({
-        path: "room", 
+        path: 'room',
         populate: {
-          path: "type", // Populate room type information
-          select: "name", // Ambil hanya nama type
+          path: 'type',
+          select: 'name',
         },
-      })
-      .populate("user", "fullName"); // Ambil nama lengkap user
+      });
 
     // Periksa apakah ada data yang ditemukan
     if (reviews.length === 0) {
-      return res.status(404).json({ message: "No reviews found for this user." });
+      return res
+        .status(404)
+        .json({ message: 'No reviews found for this user.' });
     }
 
-    // Kembalikan data review yang ditemukan
-    res.status(200).json({ message: "Data found", data: reviews });
+    res.status(200).json({ message: 'Data found', data: reviews });
   } catch (error) {
-    // Tangani error
-    res.status(500).json({ message: "Error fetching data", error });
+    res.status(500).json({ message: 'Error fetching data', error });
   }
 };
