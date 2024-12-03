@@ -88,3 +88,30 @@ exports.deleteById = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
+
+// Get room reviews by user ID
+exports.getById = async (req, res) => {
+  try {
+    // Cari reviews berdasarkan userId
+    const reviews = await Review.find({ user: req.user.id })
+      .populate('user', 'fullName')
+      .populate({
+        path: 'room',
+        populate: {
+          path: 'type',
+          select: 'name',
+        },
+      });
+
+    // Periksa apakah ada data yang ditemukan
+    if (reviews.length === 0) {
+      return res
+        .status(404)
+        .json({ message: 'No reviews found for this user.' });
+    }
+
+    res.status(200).json({ message: 'Data found', data: reviews });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching data', error });
+  }
+};

@@ -20,12 +20,12 @@ describe('Server and Database', () => {
     await mongoServer.stop();
   });
 
-  test('Should connect to the database successfully', async () => {
+  test('Connect to the database successfully', async () => {
     await expect(connectDB()).resolves.not.toThrow();
     expect(mongoose.connection.readyState).toBe(1);
   });
 
-  test('Should start the server without errors', async () => {
+  test('Start the server without errors', async () => {
     server = await startServer();
     expect(server.listening).toBe(true);
   });

@@ -44,8 +44,7 @@ exports.getAll = async (req, res) => {
 // Get room by id
 exports.getById = async (req, res) => {
   try {
-    const id = req.params.id;
-    const room = await Room.findById(id)
+    const room = await Room.findById(req.params.id)
       .populate({
         path: 'type',
         select: 'name facility cost description',
@@ -151,7 +150,7 @@ exports.update = async (req, res) => {
     }
 
     // Check if type room exists
-    const typeRoom = await TypeRoom.findOne({ name: type });
+    const typeRoom = await TypeRoom.findOne({ type });
     if (!typeRoom) {
       // Delete images if data not found
       if (req.files && req.files.length > 0) {
