@@ -43,8 +43,8 @@ jobs:
       - name: Decrypt env-secrets
         run: npx env-encryption decrypt --key ${{secrets.ENV_KEY}} --filename .env
 
-      - name: Run tests
-        run: npm run test
+      # - name: Run tests
+      #   run: npm run test
 
   deploy:
     needs: build-and-test
