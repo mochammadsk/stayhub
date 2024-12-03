@@ -150,7 +150,7 @@ exports.update = async (req, res) => {
     }
 
     // Check if type room exists
-    const typeRoom = await TypeRoom.findOne({ name: type });
+    const typeRoom = await TypeRoom.findOne({ type });
     if (!typeRoom) {
       // Delete images if data not found
       if (req.files && req.files.length > 0) {
