@@ -141,7 +141,6 @@ exports.create = async (req, res) => {
 
     res.status(201).json({ message: 'Room created successfully', data: room });
   } catch (error) {
-    console.error('Error creating room:', error);
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
@@ -150,36 +149,41 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
   const { name, type } = req.body;
   try {
+    // Check if room exists
     const room = await Room.findById(req.params.id);
     if (!room) {
-      if (req.files) {
-        await Promise.all(
-          Object.values(req.files)
-            .flat()
-            .map((file) => fs.unlink(file.path))
-        );
+      // Delete images if Data not found
+      if (req.files && req.files.length > 0) {
+        await Promise.all(req.files.map((file) => fs.unlink(file.path)));
       }
-      return res.status(404).json({ message: 'Room not found' });
+      return res.status(404).json({ message: 'Data not found' });
     }
 
-    if (type) {
-      const typeRoom = await TypeRoom.findById(type);
-      if (!typeRoom) {
-        if (req.files) {
-          await Promise.all(
-            Object.values(req.files)
-              .flat()
-              .map((file) => fs.unlink(file.path))
-          );
-        }
-        return res
-          .status(404)
-          .json({ message: `Type Room ID ${type} not found` });
+    // Check if room name already exists
+    const existingRoom = await Room.findOne({ name });
+    if (existingRoom) {
+      // Delete images if room with the same name already exists
+      if (req.files && req.files.length > 0) {
+        await Promise.all(req.files.map((file) => fs.unlink(file.path)));
       }
-      room.type = typeRoom._id;
+      return res
+        .status(409)
+        .json({ message: `Room with name ${name} already exists` });
     }
 
-    // Update images jika ada unggahan baru
+    // Check if type room exists
+    const typeRoom = await TypeRoom.findOne({ type });
+    if (!typeRoom) {
+      // Delete images if data not found
+      if (req.files && req.files.length > 0) {
+        await Promise.all(req.files.map((file) => fs.unlink(file.path)));
+      }
+      return res
+        .status(404)
+        .json({ message: `Data Type Room ${type} not found` });
+    }
+
+    // Update images
     if (req.files.roomImages) {
       if (room.images) {
         await Promise.all(
@@ -194,7 +198,9 @@ exports.update = async (req, res) => {
       }));
     }
 
+    // Save data
     await room.save();
+
     res.status(200).json({ message: 'Room updated successfully', data: room });
   } catch (error) {
     console.error('Error updating room:', error);
