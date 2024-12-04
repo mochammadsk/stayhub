@@ -128,9 +128,12 @@ exports.create = async (req, res) => {
   }
 };
 
+
 // Update room
 exports.update = async (req, res) => {
   const { name, type, status } = req.body;
+  console.log(`Updating room ID: ${req.params.id}`);
+  console.log(`Received Data - Name: ${name}, Type: ${type}, Status: ${status}`);
   try {
     // Check if room exists
     const room = await Room.findById(req.params.id);
@@ -163,11 +166,15 @@ exports.update = async (req, res) => {
         return res.status(404).json({ message: `Data Type Room dengan ID ${type} tidak ditemukan` });
       }
       room.type = typeRoom._id;
+      console.log(`Room type updated to: ${typeRoom.name}`);
     }
 
     // Update name and status if provided
     if (name) room.name = name;
-    if (status) room.status = status;
+    if (status) {
+      room.status = status;
+      console.log(`Room status updated to: ${room.status}`);
+    }
 
     // Handle image uploads
     if (req.files && req.files.length > 0) {
@@ -184,10 +191,12 @@ exports.update = async (req, res) => {
         url: path.join('images/rooms', file.filename),
         filename: file.filename,
       }));
+      console.log(`Room images updated with ${room.images.length} new images.`);
     }
 
     // Save updated room
     await room.save();
+    console.log(`Room ID: ${room.id} successfully updated.`);
 
     res.status(200).json({ message: 'Data berhasil diperbarui', data: room });
   } catch (error) {
@@ -195,6 +204,7 @@ exports.update = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
+
 
 // Delete room by id
 exports.deleteById = async (req, res) => {
