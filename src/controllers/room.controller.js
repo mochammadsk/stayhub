@@ -2,8 +2,10 @@ const Room = require('../models/room.model');
 const TypeRoom = require('../models/roomType.model');
 const Review = require('../models/roomReview.model');
 const Complaint = require('../models/roomComplaint.model');
+const User = require('../models/user.model'); // Mengimpor model User
 const path = require('path');
 const fs = require('fs').promises;
+
 
 // Get all rooms
 exports.getAll = async (req, res) => {
@@ -79,7 +81,7 @@ exports.getById = async (req, res) => {
 
 // Create room
 exports.create = async (req, res) => {
-  const { name, type } = req.body;
+  const { name, type, user } = req.body; // Menambahkan user dari request body
   try {
     // Check if room name already exists
     const existingRoom = await Room.findOne({ name });
@@ -88,17 +90,27 @@ exports.create = async (req, res) => {
       if (req.files && req.files.length > 0) {
         await Promise.all(req.files.map((file) => fs.unlink(file.path)));
       }
-      return res.status(404).json({ message: `Data ${name} already exists` });
+      return res.status(400).json({ message: `Data ${name} already exists` });
     }
 
     // Check if type room exists
-    const typeRoom = await TypeRoom.findOne({ name: type });
+    const typeRoom = await TypeRoom.findById(type); // Menggunakan ID type
     if (!typeRoom) {
       // Delete images if data not found
       if (req.files && req.files.length > 0) {
         await Promise.all(req.files.map((file) => fs.unlink(file.path)));
       }
-      return res.status(404).json({ message: `Data ${type} not found` });
+      return res.status(404).json({ message: `Data type room not found` });
+    }
+
+    // Check if user exists (optional, jika Anda ingin memvalidasi pengguna)
+    const existingUser  = await User.findById(user);
+    if (!existingUser ) {
+      // Delete images if data not found
+      if (req.files && req.files.length > 0) {
+        await Promise.all(req.files.map((file) => fs.unlink(file.path)));
+      }
+      return res.status(404).json({ message: `User  not found` });
     }
 
     // Upload images
@@ -110,7 +122,8 @@ exports.create = async (req, res) => {
     // Create data
     const room = new Room({
       name,
-      type: typeRoom._id,
+      user, // Menambahkan user ke dalam data room
+      type: typeRoom._id, // Menyimpan ID type room
       images,
     });
 
@@ -273,3 +286,19 @@ exports.deleteAll = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
+
+// Get room by user ID
+exports.getByUser = async (req, res) => {
+  try {
+    // Find rooms by user ID
+    const room = await Room.find({ user: req.user.id })
+      .populate('type');
+    if (room.length === 0) {
+      return res.status(404).json({ message: 'Data not found' });
+    }
+    res.status(200).json({ message: 'Data found', data: room });
+  }
+  catch (error) {
+    res.status(500).json({ message: 'Internal Server Error', error });
+  }
+}
