@@ -2,7 +2,6 @@ const Room = require('../models/room.model');
 const TypeRoom = require('../models/roomType.model');
 const Review = require('../models/roomReview.model');
 const Complaint = require('../models/roomComplaint.model');
-const User = require('../models/user.model');
 const path = require('path');
 const fs = require('fs').promises;
 
@@ -41,7 +40,6 @@ exports.getAll = async (req, res) => {
 
     res.status(200).json({ message: 'Data found', data: rooms });
   } catch (error) {
-    console.error('Error fetching rooms:', error);
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
@@ -82,7 +80,6 @@ exports.getById = async (req, res) => {
 
     res.status(200).json({ message: 'Data found', data: room });
   } catch (error) {
-    console.error('Error fetching room by ID:', error);
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
@@ -172,7 +169,7 @@ exports.update = async (req, res) => {
     }
 
     // Check if type room exists
-    const typeRoom = await TypeRoom.findOne({ type });
+    const typeRoom = await TypeRoom.findOne({ name: type });
     if (!typeRoom) {
       // Delete images if data not found
       if (req.files && req.files.length > 0) {
@@ -203,7 +200,6 @@ exports.update = async (req, res) => {
 
     res.status(200).json({ message: 'Room updated successfully', data: room });
   } catch (error) {
-    console.error('Error updating room:', error);
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
@@ -246,7 +242,6 @@ exports.deleteById = async (req, res) => {
 
     res.status(200).json({ message: 'Data berhasil dihapus' });
   } catch (error) {
-    console.error('Error deleting room:', error);
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
@@ -290,21 +285,6 @@ exports.deleteAll = async (req, res) => {
     await Room.deleteMany();
 
     res.status(200).json({ message: 'Semua data kamar berhasil dihapus' });
-  } catch (error) {
-    console.error('Error deleting all rooms:', error);
-    res.status(500).json({ message: 'Internal Server Error', error });
-  }
-};
-
-// Get room by user ID
-exports.getByUser = async (req, res) => {
-  try {
-    // Find rooms by user ID
-    const room = await Room.find({ user: req.user.id }).populate('type');
-    if (room.length === 0) {
-      return res.status(404).json({ message: 'Data not found' });
-    }
-    res.status(200).json({ message: 'Data found', data: room });
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error });
   }
