@@ -1,44 +1,47 @@
-/* NEXT DEVELOPMENT */
+const Transaction = require('../models/transaction.model');
+const snap = require('../config/midtranst');
 
-// const Transaction = require('../models/transaction.model');
-// const crypto = require('crypto');
+// Midtrans webhook handler
+exports.webhook = async (req, res) => {
+  const notification = req.body;
+  try {
+    // Validate notification signature and get transaction status
+    const statusResponse = await snap.transaction.notification(notification);
 
-// exports.webhook = async (req, res) => {
-//   const notification = req.body;
+    const { order_id, transaction_status, fraud_status } = statusResponse;
 
-//   try {
-//     // Generate signature key
-//     const serverKey = process.env.MIDTRANS_SERVER_KEY;
-//     const inputSignature =
-//       notification.order_id +
-//       notification.status_code +
-//       notification.gross_amount +
-//       serverKey;
-//     const calculatedSignature = crypto
-//       .createHash('sha512')
-//       .update(inputSignature)
-//       .digest('hex');
+    // Log the status response for debugging
+    console.log('Notification received:', statusResponse);
 
-//     // Compare signature key
-//     if (calculatedSignature !== notification.signature_key) {
-//       return res.status(401).json({ message: 'Invalid signature key' });
-//     }
+    // Update transaction in the database
+    const transaction = await Transaction.findOne({ _id: order_id });
 
-//     // Process the transaction (your existing code)
-//     const transaction = await Transaction.findOne({
-//       'paymentDetails.order_id': notification.order_id,
-//     });
-//     if (!transaction) {
-//       return res.status(404).json({ message: 'Transaction not found' });
-//     }
+    if (!transaction) {
+      return res.status(404).json({ message: 'Transaction not found' });
+    }
 
-//     transaction.status = notification.transaction_status;
-//     transaction.paymentDetails = notification;
-//     await transaction.save();
+    // Update transaction status based on Midtrans response
+    if (transaction_status === 'settlement') {
+      transaction.status = 'settlement';
+    } else if (transaction_status === 'expire') {
+      transaction.status = 'expired';
+    } else if (
+      transaction_status === 'cancel' ||
+      transaction_status === 'deny'
+    ) {
+      transaction.status = 'cancel';
+    }
 
-//     res.status(200).send('OK');
-//   } catch (error) {
-//     console.error('Webhook processing error:', error);
-//     res.status(500).json({ message: 'Internal Server Error', error });
-//   }
-// };
+    // Additional fraud handling
+    if (fraud_status === 'challenge') {
+      transaction.status = 'pending';
+    }
+
+    // Save updated transaction
+    await transaction.save();
+
+    return res.status(200).json({ message: 'Transaction status updated' });
+  } catch (error) {
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};

@@ -12,11 +12,7 @@ const transactionSchema = new mongoose.Schema(
       ref: 'Room',
       required: true,
     },
-    duration: {
-      type: Number,
-      required: true,
-    },
-    totalCost: {
+    cost: {
       type: Number,
       required: true,
     },
@@ -24,10 +20,6 @@ const transactionSchema = new mongoose.Schema(
       type: String,
       enum: ['pending', 'settlement', 'expired', 'cancel'],
       default: 'pending',
-    },
-    paymentDetails: {
-      type: Object,
-      default: {},
     },
   },
   {
