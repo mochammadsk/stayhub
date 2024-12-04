@@ -1,4 +1,5 @@
 const User = require('../models/user.model');
+const Room = require('../models/room.model');
 const dotenv = require('dotenv');
 const path = require('path');
 const fs = require('fs').promises;
@@ -7,35 +8,49 @@ dotenv.config();
 
 // Update profile
 exports.updateProfile = async (req, res) => {
-  const { fullName, email, phone } = req.body;
+  const { fullName, email, phone, address } = req.body;
   try {
     // Check if user exists
     const user = await User.findById(req.user.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
+
     // Update data
     user.fullName = fullName || user.fullName;
     user.email = email || user.email;
     user.phone = phone || user.phone;
-    // Update image
-    if (req.file) {
-      if (Array.isArray(user.images) && user.images.length > 0) {
-        for (const image of user.images) {
-          const filePath = path.resolve(image.url);
+    user.address = address || user.address;
 
-          await fs.access(filePath);
-          await fs.unlink(filePath);
+    // Update profile images
+    if (req.files?.profileImages) {
+      if (Array.isArray(user.profileImages) && user.profileImages.length > 0) {
+        for (const image of user.profileImages) {
+          const filePath = path.resolve(image.url);
+          await fs.access(filePath).then(() => fs.unlink(filePath));
         }
       }
-      user.images = [
-        {
-          url: req.file.path,
-          filename: req.file.filename,
-        },
-      ];
+      user.profileImages = req.files.profileImages.map((file) => ({
+        url: file.path,
+        filename: file.filename,
+      }));
     }
-    // Save
+
+    // Update ktp images
+    if (req.files?.ktpImages) {
+      if (Array.isArray(user.ktpImages) && user.ktpImages.length > 0) {
+        for (const image of user.ktpImages) {
+          const filePath = path.resolve(image.url);
+          await fs.access(filePath).then(() => fs.unlink(filePath));
+        }
+      }
+      user.ktpImages = req.files.ktpImages.map((file) => ({
+        url: file.path,
+        filename: file.filename,
+      }));
+    }
+
+    // Save data
     await user.save();
 
     res.status(200).json({ message: 'Profile updated successfully' });
@@ -67,6 +82,28 @@ exports.deletePhotoProfile = async (req, res) => {
 
     res.status(200).json({ message: 'Profile updated successfully' });
   } catch (error) {
+    res.status(500).json({ message: 'Internal Server Error', error });
+  }
+};
+
+exports.selectRoom = async (req, res) => {
+  const { room } = req.body;
+  try {
+    // Check if user exists
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if room exists
+    const existingRoom = await Room.findOne({ name: room });
+    if (!existingRoom) {
+      console.log(existingRoom);
+      return res.status(404).json({ message: `Room ${room} not found` });
+    }
+
+    res.status(200).json({ message: 'Room selected' });
+  } catch {
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
