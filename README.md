@@ -85,3 +85,7 @@ Dokumentasi API dibuat menggunakan **Swagger**.
 Setelah server dijalankan, buka [http://localhost:8000/api-docs](http://localhost:3000/api-docs).
 
 ---
+
+## Status Badge
+
+[![STAYHUB CI/CD](https://github.com/mochammadsk/stayhub/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/mochammadsk/stayhub/actions/workflows/main.yml)
