@@ -6,6 +6,7 @@ const roomSchema = new mongoose.Schema(
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'TypeRoom' }],
     reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }],
     complaints: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Complaint' }],
+    user: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     images: [
       {
         url: { type: String, required: true },
