@@ -11,7 +11,11 @@ exports.getAll = async (req, res) => {
     const room = await Room.find()
       .populate({
         path: 'type',
-        select: 'name facility cost description',
+        populate: {
+          path: 'facility',
+          select: 'name',
+        },
+        select: 'name cost description',
       })
       .populate({
         path: 'reviews',
@@ -47,7 +51,11 @@ exports.getById = async (req, res) => {
     const room = await Room.findById(req.params.id)
       .populate({
         path: 'type',
-        select: 'name facility cost description',
+        populate: {
+          path: 'facility',
+          select: 'name',
+        },
+        select: 'name cost description',
       })
       .populate({
         path: 'reviews',
