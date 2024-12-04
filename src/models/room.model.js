@@ -3,11 +3,15 @@ const mongoose = require('mongoose');
 const roomSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
+    status: {
+      type: String,
+      enum: ['available', 'unavailable'],
+      default: 'available',
+    },
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'TypeRoom' }],
     reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }],
     complaints: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Complaint' }],
-    user: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     images: [
       {
         url: { type: String, required: true },
