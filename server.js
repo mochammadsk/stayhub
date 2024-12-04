@@ -1,5 +1,4 @@
 const app = require('./app.js');
-const http = require('http');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
@@ -7,31 +6,46 @@ dotenv.config();
 
 // Database config
 const db = {
-  url: process.env.DB_URL,
+  url:
+    process.env.NODE_ENV === 'production'
+      ? process.env.DB_CLOUD_URI
+      : process.env.DB_LOCAL_URI,
 };
 
-// Connection to database
+// Connect to MongoDB
 const connectDB = async () => {
   try {
-    await mongoose.connect(db.url, db.mongooseConfig);
-    console.log('Connected to database!');
+    await mongoose.connect(db.url, {});
+    console.log(
+      `Connected to ${
+        process.env.NODE_ENV === 'production' ? 'cloud' : 'local'
+      } database!`
+    );
   } catch (error) {
-    console.log(`Failed to connect - ${error.message}`);
+    console.error(`Failed to connect - ${error.message}`);
     process.exit(1);
   }
 };
 
-// Create server port and start server
-const startServer = async () => {
-  await connectDB();
+// Initialize the server
+const server = async () => {
+  try {
+    await connectDB();
 
-  const PORT = process.env.PORT;
-  const server = http.createServer(app);
-  server.listen(PORT, () => console.log(`Server started on port ${PORT}`));
-
-  return server;
+    const PORT = process.env.PORT;
+    if (!app.listening) {
+      app.listening = true;
+      app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+    }
+  } catch (error) {
+    console.error(`Server failed to start: ${error.message}`);
+    process.exit(1);
+  }
 };
 
-startServer();
+// Start the server
+if (process.env.NODE_ENV !== 'production') {
+  server();
+}
 
-module.exports = { connectDB, startServer };
+module.exports = app;

@@ -5,15 +5,23 @@ const userSchema = new mongoose.Schema(
     fullName: { type: String, required: true },
     email: { type: String, required: true },
     phone: { type: Number, required: true },
+    address: { type: String, required: true },
     role: { type: String, default: 'user' },
     password: { type: String, required: true },
     verified: { type: Boolean, default: false },
-    images: [
+    profileImages: [
       {
         url: { type: String, required: true },
         filename: { type: String, required: true },
       },
     ],
+    ktpImages: [
+      {
+        url: { type: String, required: true },
+        filename: { type: String, required: true },
+      },
+    ],
+    room: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Room' }],
   },
   {
     timestamps: true,

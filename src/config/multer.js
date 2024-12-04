@@ -3,54 +3,26 @@ const path = require('path');
 const fs = require('fs');
 const uuid = require('uuid');
 
-const profileStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const dir = path.resolve(__dirname, '../../public/images/profile');
-    fs.mkdir(dir, { recursive: true }, (err) => {
-      if (err) {
-        return cb(err);
-      }
-      cb(null, dir);
-    });
-  },
-  filename: function (req, file, cb) {
-    const uuidName = uuid.v4().slice(0, 8);
-    cb(null, `${uuidName}-${file.originalname}`);
-  },
-});
+// Function to dynamically generate storage based on field name
+const generateStorage = (folderName) => {
+  return multer.diskStorage({
+    destination: function (req, file, cb) {
+      const dir = path.resolve(__dirname, `../../public/images/${folderName}`);
+      fs.mkdir(dir, { recursive: true }, (err) => {
+        if (err) {
+          return cb(err);
+        }
+        cb(null, dir);
+      });
+    },
+    filename: function (req, file, cb) {
+      const uuidName = uuid.v4().slice(0, 8);
+      cb(null, `${uuidName}-${file.originalname}`);
+    },
+  });
+};
 
-const roomStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const dir = path.resolve(__dirname, '../../public/images/rooms');
-    fs.mkdir(dir, { recursive: true }, (err) => {
-      if (err) {
-        return cb(err);
-      }
-      cb(null, dir);
-    });
-  },
-  filename: function (req, file, cb) {
-    const uuidName = uuid.v4().slice(0, 8);
-    cb(null, `${uuidName}-${file.originalname}`);
-  },
-});
-
-const complaintStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const dir = path.resolve(__dirname, '../../public/images/complaint');
-    fs.mkdir(dir, { recursive: true }, (err) => {
-      if (err) {
-        return cb(err);
-      }
-      cb(null, dir);
-    });
-  },
-  filename: function (req, file, cb) {
-    const uuidName = uuid.v4().slice(0, 8);
-    cb(null, `${uuidName}-${file.originalname}`);
-  },
-});
-
+// File filter
 const fileFilter = (req, file, cb) => {
   const allowedFileTypes = /jpeg|jpg|png/;
   const mimetype = allowedFileTypes.test(file.mimetype);
@@ -65,26 +37,40 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const profileImages = multer({
-  storage: profileStorage,
-  limits: { fileSize: 2 * 1024 * 1024 },
-  fileFilter: fileFilter,
-}).single('profileImages');
+// Multer middleware for multiple fields
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: function (req, file, cb) {
+      const folderMap = {
+        profileImages: 'profile',
+        ktpImages: 'ktp',
+        roomImages: 'rooms',
+        complaintImages: 'complaint',
+      };
 
-const roomImages = multer({
-  storage: roomStorage,
-  limits: { fileSize: 2 * 1024 * 1024 },
+      const folderName = folderMap[file.fieldname] || 'others';
+      const dir = path.resolve(__dirname, `../../public/images/${folderName}`);
+      fs.mkdir(dir, { recursive: true }, (err) => {
+        if (err) {
+          return cb(err);
+        }
+        cb(null, dir);
+      });
+    },
+    filename: function (req, file, cb) {
+      const uuidName = uuid.v4().slice(0, 8);
+      cb(null, `${uuidName}-${file.originalname}`);
+    },
+  }),
+  limits: { fileSize: 2 * 1024 * 1024 }, // Limit file 2 MB
   fileFilter: fileFilter,
-}).array('roomImages', 5);
+});
 
-const complaintImages = multer({
-  storage: complaintStorage,
-  limits: { fileSize: 2 * 1024 * 1024 },
-  fileFilter: fileFilter,
-}).array('complaintImages', 5);
+const uploadImages = upload.fields([
+  { name: 'profileImages', maxCount: 1 },
+  { name: 'ktpImages', maxCount: 1 },
+  { name: 'roomImages', maxCount: 5 },
+  { name: 'complaintImages', maxCount: 5 },
+]);
 
-module.exports = {
-  profileImages,
-  roomImages,
-  complaintImages,
-};
+module.exports = uploadImages;
