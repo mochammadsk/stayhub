@@ -1,11 +1,11 @@
-// src/controllers/room.controller.js
-
 const Room = require('../models/room.model');
 const TypeRoom = require('../models/roomType.model');
 const Review = require('../models/roomReview.model');
 const Complaint = require('../models/roomComplaint.model');
+const User = require('../models/user.model');
 const path = require('path');
 const fs = require('fs').promises;
+
 
 // Get all rooms
 exports.getAll = async (req, res) => {
@@ -90,13 +90,17 @@ exports.getById = async (req, res) => {
 
 // Create room
 exports.create = async (req, res) => {
+  const { name, type, user } = req.body;
+  const files = req.files;
   try {
-    const { name, type, status } = req.body;
-    const files = req.files; // Array of files
-
-    // Input validation
-    if (!name || !type || !status || !files || files.length === 0) {
-      return res.status(400).json({ message: 'Semua data harus terisi' });
+    // Check if room name already exists
+    const existingRoom = await Room.findOne({ name });
+    if (existingRoom) {
+      // Delete images if data not found
+      if (req.files && req.files.length > 0) {
+        await Promise.all(req.files.map((file) => fs.unlink(file.path)));
+      }
+      return res.status(400).json({ message: `Data ${name} already exists` });
     }
 
     // Check if TypeRoom exists by ID
@@ -105,6 +109,19 @@ exports.create = async (req, res) => {
       // Delete uploaded files if TypeRoom doesn't exist
       await Promise.all(files.map(file => fs.unlink(file.path)));
       return res.status(404).json({ message: `Data Type Room dengan ID ${type} tidak ditemukan` });
+
+    // Check if user exists (optional, jika Anda ingin memvalidasi pengguna)
+    const existingUser  = await User.findById(user);
+    if (!existingUser ) {
+      // Delete images if data not found
+      if (req.files && req.files.length > 0) {
+        await Promise.all(req.files.map((file) => fs.unlink(file.path)));
+      }
+      return res.status(404).json({ message: `User  not found` });
+
+    // Input validation
+    if (!name || !type || !status || !files || files.length === 0) {
+      return res.status(400).json({ message: 'Semua data harus terisi' });
     }
 
     // Check if room name already exists
@@ -117,12 +134,10 @@ exports.create = async (req, res) => {
     // Create room with images as objects
     const room = await Room.create({
       name,
+      user,
       type: typeRoom._id,
+      images,
       status,
-      images: files.map(file => ({
-        url: path.join('images/rooms', file.filename), // Align with static serving path
-        filename: file.filename,
-      })),
     });
 
     res.status(201).json({
@@ -289,3 +304,19 @@ exports.deleteAll = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
+
+// Get room by user ID
+exports.getByUser = async (req, res) => {
+  try {
+    // Find rooms by user ID
+    const room = await Room.find({ user: req.user.id })
+      .populate('type');
+    if (room.length === 0) {
+      return res.status(404).json({ message: 'Data not found' });
+    }
+    res.status(200).json({ message: 'Data found', data: room });
+  }
+  catch (error) {
+    res.status(500).json({ message: 'Internal Server Error', error });
+  }
+}
