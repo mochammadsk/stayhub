@@ -6,7 +6,6 @@ const User = require('../models/user.model');
 const path = require('path');
 const fs = require('fs').promises;
 
-
 // Get all rooms
 exports.getAll = async (req, res) => {
   try {
@@ -90,142 +89,118 @@ exports.getById = async (req, res) => {
 
 // Create room
 exports.create = async (req, res) => {
-  const { name, type, user } = req.body;
-  const files = req.files;
+  const { name, type } = req.body;
   try {
-    // Check if room name already exists
+    // Check if name room already exists
     const existingRoom = await Room.findOne({ name });
     if (existingRoom) {
-      // Delete images if data not found
-      if (req.files && req.files.length > 0) {
-        await Promise.all(req.files.map((file) => fs.unlink(file.path)));
+      // Delete images if data already exists
+      if (req.files) {
+        await Promise.all(
+          Object.values(req.files)
+            .flat()
+            .map((file) => fs.unlink(file.path))
+        );
       }
       return res.status(400).json({ message: `Data ${name} already exists` });
     }
 
-    // Check if TypeRoom exists by ID
-    const typeRoom = await TypeRoom.findById(type);
+    // Check if type room exists
+    const typeRoom = await TypeRoom.findOne({ name: type });
     if (!typeRoom) {
-      // Delete uploaded files if TypeRoom doesn't exist
-      await Promise.all(files.map(file => fs.unlink(file.path)));
-      return res.status(404).json({ message: `Data Type Room dengan ID ${type} tidak ditemukan` });
-
-    // Check if user exists (optional, jika Anda ingin memvalidasi pengguna)
-    const existingUser  = await User.findById(user);
-    if (!existingUser ) {
-      // Delete images if data not found
-      if (req.files && req.files.length > 0) {
-        await Promise.all(req.files.map((file) => fs.unlink(file.path)));
+      // Delete images if data already exists
+      if (req.files) {
+        await Promise.all(
+          Object.values(req.files)
+            .flat()
+            .map((file) => fs.unlink(file.path))
+        );
       }
-      return res.status(404).json({ message: `User  not found` });
-
-    // Input validation
-    if (!name || !type || !status || !files || files.length === 0) {
-      return res.status(400).json({ message: 'Semua data harus terisi' });
+      return res
+        .status(404)
+        .json({ message: `Type Room ID ${type} not found` });
     }
 
-    // Check if room name already exists
-    const existingRoom = await Room.findOne({ name });
-    if (existingRoom) {
-      await Promise.all(files.map(file => fs.unlink(file.path)));
-      return res.status(409).json({ message: `Kamar dengan nama ${name} sudah ada` });
-    }
+    // Upload images
+    const images = req.files.roomImages
+      ? req.files.roomImages.map((file) => ({
+          url: path.join('images/rooms', file.filename),
+          filename: file.filename,
+        }))
+      : [];
 
-    // Create room with images as objects
-    const room = await Room.create({
+    // Create data
+    const room = new Room({
       name,
-      user,
       type: typeRoom._id,
       images,
-      status,
     });
 
-    res.status(201).json({
-      message: 'Kamar berhasil ditambahkan',
-      data: room,
-    });
+    // Save data
+    await room.save();
+
+    res.status(201).json({ message: 'Room created successfully', data: room });
   } catch (error) {
     console.error('Error creating room:', error);
-    res.status(500).json({ message: 'Gagal menambahkan kamar', error });
+    res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
 
-
 // Update room
 exports.update = async (req, res) => {
-  const { name, type, status } = req.body;
-  console.log(`Updating room ID: ${req.params.id}`);
-  console.log(`Received Data - Name: ${name}, Type: ${type}, Status: ${status}`);
+  const { name, type } = req.body;
   try {
-    // Check if room exists
     const room = await Room.findById(req.params.id);
     if (!room) {
-      // Delete uploaded files if room doesn't exist
-      if (req.files && req.files.length > 0) {
-        await Promise.all(req.files.map(file => fs.unlink(file.path)));
+      if (req.files) {
+        await Promise.all(
+          Object.values(req.files)
+            .flat()
+            .map((file) => fs.unlink(file.path))
+        );
       }
-      return res.status(404).json({ message: 'Data tidak ditemukan' });
+      return res.status(404).json({ message: 'Room not found' });
     }
 
-    // Check if room name already exists and is not the same room
-    if (name && name !== room.name) {
-      const existingRoom = await Room.findOne({ name });
-      if (existingRoom && existingRoom._id.toString() !== req.params.id) {
-        if (req.files && req.files.length > 0) {
-          await Promise.all(req.files.map(file => fs.unlink(file.path)));
-        }
-        return res.status(409).json({ message: `Kamar dengan nama ${name} sudah ada` });
-      }
-    }
-
-    // If type is being updated, check if the new TypeRoom exists by ID
-    if (type && type !== room.type.toString()) {
+    if (type) {
       const typeRoom = await TypeRoom.findById(type);
       if (!typeRoom) {
-        if (req.files && req.files.length > 0) {
-          await Promise.all(req.files.map(file => fs.unlink(file.path)));
+        if (req.files) {
+          await Promise.all(
+            Object.values(req.files)
+              .flat()
+              .map((file) => fs.unlink(file.path))
+          );
         }
-        return res.status(404).json({ message: `Data Type Room dengan ID ${type} tidak ditemukan` });
+        return res
+          .status(404)
+          .json({ message: `Type Room ID ${type} not found` });
       }
       room.type = typeRoom._id;
     }
 
-    // Update name and status if provided
-    if (name) room.name = name;
-    if (status) {
-      room.status = status;
-      console.log(`Room status updated to: ${room.status}`);
-    }
-
-    // Handle image uploads
-    if (req.files && req.files.length > 0) {
-      // Delete existing images
-      if (room.images && room.images.length > 0) {
-        await Promise.all(room.images.map(image => {
-          const filePath = path.resolve(__dirname, '../../public', image.url);
-          return fs.unlink(filePath).catch(err => console.error(`Failed to delete image ${filePath}:`, err));
-        }));
+    // Update images jika ada unggahan baru
+    if (req.files.roomImages) {
+      if (room.images) {
+        await Promise.all(
+          room.images.map((image) =>
+            fs.unlink(path.resolve(__dirname, '../../public', image.url))
+          )
+        );
       }
-
-      // Update with new images as objects
-      room.images = req.files.map(file => ({
+      room.images = req.files.roomImages.map((file) => ({
         url: path.join('images/rooms', file.filename),
         filename: file.filename,
       }));
-      console.log(`Room images updated with ${room.images.length} new images.`);
     }
 
-    // Save updated room
     await room.save();
-    console.log(`Room ID: ${room.id} successfully updated.`);
-
-    res.status(200).json({ message: 'Data berhasil diperbarui', data: room });
+    res.status(200).json({ message: 'Room updated successfully', data: room });
   } catch (error) {
     console.error('Error updating room:', error);
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
-
 
 // Delete room by id
 exports.deleteById = async (req, res) => {
@@ -238,10 +213,16 @@ exports.deleteById = async (req, res) => {
 
     // Delete images
     if (room.images && room.images.length > 0) {
-      await Promise.all(room.images.map(image => {
-        const filePath = path.resolve(__dirname, '../../public', image.url);
-        return fs.unlink(filePath).catch(err => console.error(`Failed to delete image ${filePath}:`, err));
-      }));
+      await Promise.all(
+        room.images.map((image) => {
+          const filePath = path.resolve(__dirname, '../../public', image.url);
+          return fs
+            .unlink(filePath)
+            .catch((err) =>
+              console.error(`Failed to delete image ${filePath}:`, err)
+            );
+        })
+      );
     }
 
     // Delete reviews
@@ -274,17 +255,21 @@ exports.deleteAll = async (req, res) => {
     }
 
     // Delete all images
-    const deleteImagesPromises = rooms.flatMap(room =>
-      room.images.map(image => {
+    const deleteImagesPromises = rooms.flatMap((room) =>
+      room.images.map((image) => {
         const filePath = path.resolve(__dirname, '../../public', image.url);
-        return fs.unlink(filePath).catch(err => console.error(`Failed to delete image ${filePath}:`, err));
+        return fs
+          .unlink(filePath)
+          .catch((err) =>
+            console.error(`Failed to delete image ${filePath}:`, err)
+          );
       })
     );
     await Promise.all(deleteImagesPromises);
 
     // Collect all review and complaint IDs
-    const allReviewIds = rooms.flatMap(room => room.reviews);
-    const allComplaintIds = rooms.flatMap(room => room.complaints);
+    const allReviewIds = rooms.flatMap((room) => room.reviews);
+    const allComplaintIds = rooms.flatMap((room) => room.complaints);
 
     // Delete all reviews and complaints
     if (allReviewIds.length > 0) {
@@ -309,14 +294,12 @@ exports.deleteAll = async (req, res) => {
 exports.getByUser = async (req, res) => {
   try {
     // Find rooms by user ID
-    const room = await Room.find({ user: req.user.id })
-      .populate('type');
+    const room = await Room.find({ user: req.user.id }).populate('type');
     if (room.length === 0) {
       return res.status(404).json({ message: 'Data not found' });
     }
     res.status(200).json({ message: 'Data found', data: room });
-  }
-  catch (error) {
+  } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error });
   }
-}
+};
