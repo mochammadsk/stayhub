@@ -13,7 +13,11 @@ exports.getAll = async (req, res) => {
     const rooms = await Room.find()
       .populate({
         path: 'type',
-        select: 'name facility cost description',
+        populate: {
+          path: 'facility',
+          select: 'name',
+        },
+        select: 'name cost description',
       })
       .populate({
         path: 'reviews',
@@ -46,11 +50,14 @@ exports.getAll = async (req, res) => {
 // Get room by id
 exports.getById = async (req, res) => {
   try {
-    const id = req.params.id;
-    const room = await Room.findById(id)
+    const room = await Room.findById(req.params.id)
       .populate({
         path: 'type',
-        select: 'name facility cost description',
+        populate: {
+          path: 'facility',
+          select: 'name',
+        },
+        select: 'name cost description',
       })
       .populate({
         path: 'reviews',
@@ -166,7 +173,6 @@ exports.update = async (req, res) => {
         return res.status(404).json({ message: `Data Type Room dengan ID ${type} tidak ditemukan` });
       }
       room.type = typeRoom._id;
-      console.log(`Room type updated to: ${typeRoom.name}`);
     }
 
     // Update name and status if provided

@@ -1,4 +1,3 @@
-const Admin = require('../models/admin.model');
 const User = require('../models/user.model');
 const dotenv = require('dotenv');
 
@@ -21,10 +20,9 @@ exports.getAll = async (req, res) => {
 
 // Show data user by id
 exports.getById = async (req, res) => {
-  const id = req.params.id;
   try {
     // Check if user exists
-    const user = await User.findById(id);
+    const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found!' });
     }
@@ -37,18 +35,17 @@ exports.getById = async (req, res) => {
 
 // Update role user
 exports.updateRole = async (req, res) => {
-  const id = req.params.id;
   const role = req.body;
   try {
     // Check if user exists
-    const updateUser = await User.findByIdAndUpdate(id, role, { new: true });
-    if (!updateUser) {
+    const user = await User.findByIdAndUpdate(req.params.id, role, {
+      new: true,
+    });
+    if (!user) {
       return res.status(404).json({ message: 'User not found!' });
     }
 
-    res
-      .status(201)
-      .json({ message: 'User updated successfully!', data: updateUser });
+    res.status(200).json({ message: 'Data updated', data: user });
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error });
   }
@@ -56,10 +53,9 @@ exports.updateRole = async (req, res) => {
 
 // Delete user data
 exports.deleteById = async (req, res) => {
-  const id = req.params.id;
   try {
     // Check if user exists
-    const user = await User.findByIdAndDelete(id);
+    const user = await User.findByIdAndDelete(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found!' });
     }

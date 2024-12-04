@@ -3,6 +3,11 @@ module.exports = (app) => {
   const { auth } = require('../middelware/auth.middleware');
   const router = require('express').Router();
 
+  // Get review by id review
+  router.get('/:id', auth('user'), (req, res) => {
+    review.getById(req, res);
+  });
+
   // Create review
   router.post('/:id', auth('user'), (req, res) => {
     review.create(req, res);

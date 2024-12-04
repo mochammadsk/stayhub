@@ -18,7 +18,7 @@ module.exports = (app) => {
 
   // Update role user
   router.put('/update/user/:id', auth('admin'), (req, res) => {
-    admin.updateRole;
+    admin.updateRole(req, res);
   });
 
   // Delete data user

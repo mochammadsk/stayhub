@@ -72,4 +72,12 @@ require('./src/routes/roomReview.routes')(app);
 require('./src/routes/roomComplaint.routes')(app);
 require('./src/routes/transaction.routes')(app);
 
+/* NEXT DEVELOPMENT */
+// require('./src/routes/midtrans.routes')(app);
+
+// For testing only
+app.get('/', (_req, res) => {
+  res.send('StayHub API');
+});
+
 module.exports = app;

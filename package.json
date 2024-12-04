@@ -8,6 +8,15 @@
     "dev": "nodemon server.js",
     "test": "jest --detectOpenHandles"
   },
+  "jest": {
+    "globalSetup": "./src/__test__/setup.js",
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/**/*.test.js"
+    ],
+    "verbose": true,
+    "forceExit": true
+  },
   "keywords": [],
   "author": "StayHub Team",
   "license": "ISC",
