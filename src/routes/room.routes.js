@@ -1,7 +1,7 @@
 module.exports = (app) => {
   const room = require('../controllers/room.controller');
   const { auth } = require('../middelware/auth.middleware');
-  const { roomImages } = require('../config/multer');
+  const uploadImages = require('../config/multer');
   const router = require('express').Router();
   const dotenv = require('dotenv');
 
@@ -18,12 +18,12 @@ module.exports = (app) => {
   });
 
   // Create room
-  router.post('/add', auth('admin'), roomImages, (req, res) => {
+  router.post('/add', auth('admin'), uploadImages, (req, res) => {
     room.create(req, res);
   });
 
   // Update room by id
-  router.put('/update/:id', auth('admin'), roomImages, (req, res) => {
+  router.put('/update/:id', auth('admin'), uploadImages, (req, res) => {
     room.update(req, res);
   });
 
