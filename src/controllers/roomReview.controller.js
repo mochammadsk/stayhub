@@ -1,14 +1,36 @@
 const Review = require('../models/roomReview.model');
 const Room = require('../models/room.model');
+const User = require('../models/user.model');
 
 // Create Review
 exports.create = async (req, res) => {
   const { rating, comment } = req.body;
   try {
     // Check data room exists
-    const room = await Room.findById(req.params.id);
+    const room = await Room.findById(req.params.id).populate({
+      path: 'transaction',
+      select: 'status',
+    });
     if (!room) {
       return res.status(404).json({ message: 'Data not found' });
+    }
+
+    // Check if user is authenticated
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(400).json({ message: 'User ID is missing' });
+    }
+
+    // Check if user is allowed to review this room
+    if (user.room != room.id) {
+      return res
+        .status(400)
+        .json({ message: 'You are not allowed to review this room' });
+    }
+
+    // Check if room is paid off
+    if (room.transaction[0].status === 'pending') {
+      return res.status(400).json({ message: 'bayar dulu' });
     }
 
     // Check if user has already reviewed the room
