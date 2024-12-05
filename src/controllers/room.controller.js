@@ -32,6 +32,10 @@ exports.getAll = async (req, res) => {
           select: 'fullName',
         },
         select: 'description status images',
+      })
+      .populate({
+        path: 'transaction',
+        select: 'status',
       });
 
     if (rooms.length === 0) {
@@ -71,6 +75,10 @@ exports.getById = async (req, res) => {
           select: 'fullName',
         },
         select: 'description status images',
+      })
+      .populate({
+        path: 'transaction',
+        select: 'status',
       });
 
     // Check if room exists
