@@ -1,5 +1,6 @@
 const Complaint = require('../models/roomComplaint.model');
 const Room = require('../models/room.model');
+const User = require('../models/user.model');
 const path = require('path');
 const fs = require('fs').promises;
 
@@ -26,16 +27,15 @@ exports.getAll = async (req, res) => {
 exports.getById = async (req, res) => {
   try {
     // Check if complaint exist
-    const complaint = await Complaint.findById(req.params.id).populate({
-      path: 'user',
-      select: 'fullName',
-    });
-    if (!complaint) {
+    const complaint = await Complaint.find({ user: req.user.id });
+
+    if (complaint.length === 0) {
       return res.status(404).json({ message: 'Complaint not found' });
     }
 
     res.status(200).json({ message: 'Complaint found', data: complaint });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
@@ -68,10 +68,12 @@ exports.create = async (req, res) => {
     }
 
     // Upload images
-    const images = req.files.map((file) => ({
-      url: file.path,
-      filename: file.filename,
-    }));
+    const images = req.files.complaintImages
+      ? req.files.complaintImages.map((file) => ({
+          url: path.join('images/complaint', file.filename),
+          filename: file.filename,
+        }))
+      : [];
 
     // Create complaint
     const complaint = new Complaint({
@@ -91,6 +93,7 @@ exports.create = async (req, res) => {
 
     res.status(201).json({ message: 'Data created', data: complaint });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
@@ -114,19 +117,16 @@ exports.update = async (req, res) => {
     complaint.description = description || complaint.description;
 
     // Upload images
-    if (req.files && req.files.length > 0) {
-      // Delete old images
-      if (complaint.images && complaint.images.length > 0) {
-        for (const image of complaint.images) {
-          const filePath = path.resolve(image.url);
-
-          await fs.access(filePath);
-          await fs.unlink(filePath);
-        }
+    if (req.files.complaintImages) {
+      if (complaint.images) {
+        await Promise.all(
+          complaint.images.map((image) =>
+            fs.unlink(path.resolve(__dirname, '../../public', image.url))
+          )
+        );
       }
-      // Update images
-      complaint.images = req.files.map((file) => ({
-        url: file.path,
+      complaint.images = req.files.complaintImages.map((file) => ({
+        url: path.join('images/complaint', file.filename),
         filename: file.filename,
       }));
     }
