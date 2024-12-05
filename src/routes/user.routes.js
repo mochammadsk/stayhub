@@ -14,10 +14,5 @@ module.exports = (app) => {
     user.deletePhotoProfile(req, res);
   });
 
-  // Select room
-  router.post('/select-room', auth('user'), (req, res) => {
-    user.selectRoom(req, res);
-  });
-
   app.use('/user', router);
 };

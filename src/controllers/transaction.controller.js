@@ -1,20 +1,32 @@
 const Room = require('../models/room.model');
 const Transaction = require('../models/transaction.model');
+const User = require('../models/user.model');
 const snap = require('../config/midtranst');
 
 exports.create = async (req, res) => {
   // Check if user is authenticated
-  if (!req.user || !req.user.id) {
+  const user = await User.findById(req.user.id);
+  if (!user) {
     return res.status(400).json({ message: 'User ID is missing' });
   }
 
   // Check if room exists
-  const room = await Room.findById(req.params.id).populate({
-    path: 'type',
-    select: 'name cost',
-  });
+  const room = await Room.findById(req.params.id)
+    .populate({
+      path: 'type',
+      select: 'name cost',
+    })
+    .populate({
+      path: 'transaction',
+      select: 'status',
+    });
   if (!room) {
     return res.status(404).json({ message: 'Room not found' });
+  }
+
+  // Check if room is available
+  if (room.status === 'unavailable') {
+    return res.status(400).json({ message: 'Room is full' });
   }
 
   // Check if user already has a pending transaction
@@ -62,6 +74,15 @@ exports.create = async (req, res) => {
     };
 
     const midtrans = await snap.createTransaction(parameter);
+
+    // Update room data
+    room.transaction.push(result._id);
+    room.status = 'unavailable';
+    await room.save();
+
+    // Add room to user
+    user.room.push(room._id);
+    await user.save();
 
     res.status(201).json({
       message: 'Transaction created successfully',

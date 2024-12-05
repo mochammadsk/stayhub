@@ -85,25 +85,3 @@ exports.deletePhotoProfile = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
-
-exports.selectRoom = async (req, res) => {
-  const { room } = req.body;
-  try {
-    // Check if user exists
-    const user = await User.findById(req.user.id);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    // Check if room exists
-    const existingRoom = await Room.findOne({ name: room });
-    if (!existingRoom) {
-      console.log(existingRoom);
-      return res.status(404).json({ message: `Room ${room} not found` });
-    }
-
-    res.status(200).json({ message: 'Room selected' });
-  } catch {
-    res.status(500).json({ message: 'Internal Server Error', error });
-  }
-};
