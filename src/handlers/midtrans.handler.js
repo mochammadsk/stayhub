@@ -1,4 +1,5 @@
 const Transaction = require('../models/transaction.model');
+const Room = require('../models/room.model');
 const snap = require('../config/midtranst');
 
 // Midtrans webhook handler
@@ -39,6 +40,10 @@ exports.webhook = async (req, res) => {
 
     // Save updated transaction
     await transaction.save();
+
+    // Update transaction status in Room model
+    Room.transaction.push(transaction._id);
+    await Room.save();
 
     return res.status(200).json({ message: 'Transaction status updated' });
   } catch (error) {
