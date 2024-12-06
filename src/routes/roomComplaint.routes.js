@@ -13,6 +13,9 @@ module.exports = (app) => {
   });
 
   // Get complaint by id
+  // router.get('/:id', auth('admin'), (req, res) => {
+  //   complaint.getById(req, res);
+  // });
   router.get('/:id', auth('admin' && 'user'), (req, res) => {
     complaint.getById(req, res);
   });
@@ -26,6 +29,10 @@ module.exports = (app) => {
   router.put('/:id', auth('user'), uploadImages, (req, res) => {
     complaint.update(req, res);
   });
+  // Update status complaint by id
+router.patch('/:id/status', auth('admin'), (req, res) => {
+  complaint.updateStatus(req, res);
+});
 
   // Delete complaint by id
   router.delete('/:id', auth('user'), (req, res) => {
