@@ -13,10 +13,5 @@ module.exports = (app) => {
     transaction.update(req, res);
   });
 
-  // Webhook midtrans
-  router.post('/webhook', (req, res) => {
-    transaction.webhook(req, res);
-  });
-
   app.use('/transaction', router);
 };

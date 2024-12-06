@@ -3,6 +3,11 @@ const mongoose = require('mongoose');
 const roomSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
+    status: {
+      type: String,
+      enum: ['available', 'unavailable'],
+      default: 'available',
+    },
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'TypeRoom' }],
     reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }],
     complaints: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Complaint' }],
@@ -12,6 +17,7 @@ const roomSchema = new mongoose.Schema(
         filename: { type: String, required: true },
       },
     ],
+    transaction: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Transaction' }],
   },
   {
     timestamps: true,

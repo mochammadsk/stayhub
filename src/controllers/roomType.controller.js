@@ -97,10 +97,12 @@ exports.update = async (req, res) => {
       return res.status(404).json({ message: 'Data not found' });
     }
 
-    // Check if type room name already exists
-    const existingType = await TypeRoom.findOne({ name });
-    if (existingType) {
-      return res.status(409).json({ message: `Data ${name} already exists` });
+    // Check if type room name already exists, excluding current data
+    if (name && name !== type.name) {
+      const existingType = await TypeRoom.findOne({ name, _id: { $ne: req.params.id } });
+      if (existingType) {
+        return res.status(409).json({ message: `Data ${name} already exists` });
+      }
     }
 
     // Find facility IDs based on names
@@ -110,13 +112,13 @@ exports.update = async (req, res) => {
         name: { $in: facility },
       });
 
-      // Check if all facility are found
+      // Check if all facilities are found
       if (foundFacility.length !== facility.length) {
         const missingFacilities = facility.filter(
           (f) => !foundFacility.some((found) => found.name === f)
         );
         return res.status(400).json({
-          message: `Some facility not found: ${missingFacilities.join(', ')}`,
+          message: `Some facilities not found: ${missingFacilities.join(', ')}`,
         });
       }
 
@@ -137,6 +139,7 @@ exports.update = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
+
 
 // Delete one typeRoom
 exports.deleteById = async (req, res) => {

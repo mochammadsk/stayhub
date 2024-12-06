@@ -5,12 +5,7 @@ module.exports = (app) => {
 
   // Get review by id review
   router.get('/:id', auth('user'), (req, res) => {
-    review.getRoomReviewsByIdReview(req, res);
-  });
-
-  // Get review by id user
-  router.get('/user', auth('user'), (req, res) => {
-    review.getRoomReviewsByIdUser(req, res);
+    review.getById(req, res);
   });
 
   // Create review

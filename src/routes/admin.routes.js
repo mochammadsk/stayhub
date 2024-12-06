@@ -7,7 +7,7 @@ module.exports = (app) => {
   dotenv.config();
 
   // Show data user
-  router.get('/list/user', auth('admin'), (req, res) => {
+  router.get('/list/user',  (req, res) => {
     admin.getAll(req, res);
   });
 
@@ -18,7 +18,7 @@ module.exports = (app) => {
 
   // Update role user
   router.put('/update/user/:id', auth('admin'), (req, res) => {
-    admin.updateRole;
+    admin.updateRole(req, res);
   });
 
   // Delete data user
