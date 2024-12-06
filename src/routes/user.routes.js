@@ -4,6 +4,11 @@ module.exports = (app) => {
   const uploadImages = require('../config/multer');
   const router = require('express').Router();
 
+  // Get user profile
+  router.get('/profile', auth('user'), (req, res) => {
+    user.getProfile(req, res);
+  });
+
   // Update profile data
   router.put('/profile/update', auth('user'), uploadImages, (req, res) => {
     user.updateProfile(req, res);

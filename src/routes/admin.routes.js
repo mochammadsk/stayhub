@@ -7,7 +7,7 @@ module.exports = (app) => {
   dotenv.config();
 
   // Show data user
-  router.get('/list/user', auth('admin'), (req, res) => {
+  router.get('/list/user',  (req, res) => {
     admin.getAll(req, res);
   });
 
