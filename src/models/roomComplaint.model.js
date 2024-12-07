@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const complaintSchema = new mongoose.Schema(
   {
@@ -23,15 +23,19 @@ const complaintSchema = new mongoose.Schema(
         filename: { type: String, required: true },
       },
     ],
+    response: {
+      type: String,
+      default: "", 
+    },
   },
   {
     timestamps: true,
   }
 );
 
-complaintSchema.method('toJSON', function () {
+complaintSchema.method("toJSON", function () {
   const { __v, _id, ...object } = this.toObject();
   return { id: _id, ...object };
 });
 
-module.exports = mongoose.model('Complaint', complaintSchema);
+module.exports = mongoose.model("Complaint", complaintSchema);
