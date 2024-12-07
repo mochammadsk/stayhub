@@ -151,26 +151,26 @@ exports.update = async (req, res) => {
 
 // Update status complaint by id
 exports.updateStatus = async (req, res) => {
-  const { status } = req.body; // Status yang ingin diperbarui
+  const { status } = req.body; 
   try {
-    // Validasi status yang diterima
+  //  Validate the received status
     if (!['Menunggu', 'Selesai'].includes(status)) {
       return res.status(400).json({ message: "Invalid status value" });
     }
 
-    // Cari keluhan berdasarkan ID
+    // Search for complaints by ID
     const complaint = await Complaint.findById(req.params.id);
     if (!complaint) {
       return res.status(404).json({ message: "Complaint not found" });
     }
 
-    // Perbarui status keluhan
+    // Update complaint status
     complaint.status = status;
 
-    // Simpan perubahan status
+  //  save complaint status
     await complaint.save();
 
-    // Kirim respon berhasil
+    // Send response successful
     res.status(200).json({ message: "Status updated successfully", data: complaint });
   } catch (error) {
     console.log(error);

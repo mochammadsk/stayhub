@@ -30,7 +30,7 @@ module.exports = (app) => {
     complaint.update(req, res);
   });
   // Update status complaint by id
-router.patch('/:id/status', auth('admin'), (req, res) => {
+router.put('/status/:id', auth('admin'), (req, res) => {
   complaint.updateStatus(req, res);
 });
 
