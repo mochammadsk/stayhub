@@ -17,10 +17,15 @@ module.exports = (app) => {
     room.getById(req, res);
   });
 
+  // Get room by type
+  router.get('/type/:id', (req, res) => {
+    room.getByType(req, res);
+  });
+
   // Get room by user ID
   router.get('/user/:id', auth('user'), (req, res) => {
     room.getByUser(req, res);
-  });  
+  });
 
   // Create room
   router.post('/add', auth('admin'), uploadImages, (req, res) => {
