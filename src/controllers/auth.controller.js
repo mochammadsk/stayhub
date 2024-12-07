@@ -125,6 +125,7 @@ exports.login = async (req, res) => {
         email: admin ? admin.email : user.email,
         phone: admin ? admin.phone : user.phone,
         role: admin ? admin.role : user.role,
+        roomId: admin ? admin.$ignore : user.room[0]._id,
       },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
