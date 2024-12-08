@@ -11,12 +11,8 @@ module.exports = (app) => {
   router.get('/verify-email/:uniqueString', auth.verifyEmail);
 
   // Login account
-  router.post('/signin', async (req, res) => {
-    try {
-      await auth.login(req, res);
-    } catch (error) {
-      res.status(400).json({ messages: error.message });
-    }
+  router.post('/signin', (req, res) => {
+    auth.login(req, res);
   });
 
   // Google Auth
