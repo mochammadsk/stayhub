@@ -1,7 +1,7 @@
 // Get all type rooms
 /**
  * @swagger
- * /type-room:
+ * /type:
  *   get:
  *     tags:
  *       - TypeRoom  # Menentukan kategori "TypeRoom"
@@ -31,7 +31,7 @@
 // Get one type room
 /**
  * @swagger
- * /type-room/{id}:
+ * /type{id}:
  *   get:
  *     tags:
  *       - TypeRoom  # Menentukan kategori "TypeRoom"
@@ -60,7 +60,7 @@
 // Create type room
 /**
  * @swagger
- * /type-room:
+ * /type/add:
  *   post:
  *     tags:
  *       - TypeRoom  # Menentukan kategori "TypeRoom"
@@ -114,7 +114,7 @@
 // Update type room
 /**
  * @swagger
- * /type-room/{id}:
+ * /type/update/{id}:
  *   put:
  *     tags:
  *       - TypeRoom  # Menentukan kategori "TypeRoom"
@@ -166,7 +166,7 @@
 // Delete type room
 /**
  * @swagger
- * /type-room/{id}:
+ * /type/delete/{id}:
  *   delete:
  *     tags:
  *       - TypeRoom  # Menentukan kategori "TypeRoom"
@@ -184,6 +184,30 @@
  *         description: "Jenis kamar berhasil dihapus."
  *       404:
  *         description: "Jenis kamar tidak ditemukan."
+ *       500:
+ *         description: "Terjadi kesalahan internal server."
+ */
+
+// Delete all type rooms
+/**
+ * @swagger
+ * /type/delete:
+ *   delete:
+ *     tags:
+ *       - TypeRoom  # Menentukan kategori "TypeRoom"
+ *     summary: "Delete all type rooms"
+ *     description: "Menghapus semua jenis kamar."
+ *     responses:
+ *       200:
+ *         description: "Semua jenis kamar berhasil dihapus."
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Data deleted"
  *       500:
  *         description: "Terjadi kesalahan internal server."
  */
