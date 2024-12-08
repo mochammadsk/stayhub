@@ -57,6 +57,80 @@
  *         description: "Terjadi kesalahan internal server."
  */
 
+// Get room by type
+/**
+ * @swagger
+ * /room/type/{id}:
+ *  get:
+ *   tags:
+ *     - Room  # Ini menentukan bahwa endpoint ini berada di kategori "Room"
+ *   summary: "Get room by type"
+ *   description: "Mendapatkan daftar kamar berdasarkan tipe."
+ *   parameters:
+ *     - in: path
+ *       name: id
+ *       required: true
+ *       description: "ID tipe kamar"
+ *       schema:
+ *         type: string
+ *   responses:
+ *     200:
+ *       description: "Daftar kamar berhasil diambil."
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               message:
+ *                 type: string
+ *                 example: "Data found"
+ *               data:
+ *                 type: array
+ *                 items:
+ *                   $ref: '#/components/schemas/Room'
+ *     404:
+ *       description: "Tidak ada data ditemukan."
+ *     500:
+ *       description: "Terjadi kesalahan internal server."
+ */
+
+// Get room by user ID
+/**
+ * @swagger
+ * /room/user/{id}:
+ *   get:
+ *     tags:
+ *       - Room  # Ini menentukan bahwa endpoint ini berada di kategori "Room"
+ *     summary: "Get room by user ID"
+ *     description: "Mendapatkan daftar kamar berdasarkan ID pengguna."
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: "ID pengguna"
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: "Daftar kamar berhasil diambil."
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Data found"
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Room'
+ *       404:
+ *         description: "Tidak ada data ditemukan."
+ *       500:
+ *         description: "Terjadi kesalahan internal server."
+ */
+
 // Create room
 /**
  * @swagger
