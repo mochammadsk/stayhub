@@ -1,22 +1,25 @@
-// Create transaction for room booking
+// Create transaction
+
 /**
  * @swagger
- * /transaction/{id}:
+ * /transaction/callback/{id}:
  *   post:
+ *     summary: Membuat transaksi baru
+ *     description: Endpoint ini digunakan oleh pengguna untuk membuat transaksi baru.
  *     tags:
- *       - Transaction  # Menentukan kategori "Transaction"
- *     summary: "Create a new transaction for room booking"
- *     description: "Membuat transaksi baru untuk pemesanan kamar, memverifikasi ketersediaan kamar dan memeriksa transaksi yang sudah ada."
+ *       - Transaction
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
- *       - in: path
- *         name: id
+ *       - name: id
+ *         in: path
  *         required: true
- *         description: "ID dari kamar yang akan dipesan"
+ *         description: ID kamar yang ingin dipesan.
  *         schema:
  *           type: string
  *     responses:
  *       201:
- *         description: "Transaksi berhasil dibuat"
+ *         description: Transaksi berhasil dibuat.
  *         content:
  *           application/json:
  *             schema:
@@ -24,18 +27,18 @@
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Transaction created successfully"
+ *                   example: Transaction created successfully
  *                 data:
  *                   type: object
  *                   properties:
- *                     order_id:
+ *                     transaction_token:
  *                       type: string
- *                       example: "60d72e4c8c02135f74b6d3d8"
- *                     cost:
- *                       type: number
- *                       example: 500000
+ *                       example: abcdef123456
+ *                     redirect_url:
+ *                       type: string
+ *                       example: https://midtrans.com/redirect
  *       400:
- *         description: "Terjadi kesalahan seperti kamar penuh, transaksi sebelumnya, atau pengguna tidak terautentikasi."
+ *         description: Validasi gagal atau permintaan tidak valid.
  *         content:
  *           application/json:
  *             schema:
@@ -43,9 +46,9 @@
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Room is full"
+ *                   example: User ID is missing
  *       404:
- *         description: "Kamar tidak ditemukan"
+ *         description: Data tidak ditemukan.
  *         content:
  *           application/json:
  *             schema:
@@ -53,9 +56,9 @@
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Room not found"
+ *                   example: Room not found
  *       500:
- *         description: "Terjadi kesalahan server saat membuat transaksi"
+ *         description: Kesalahan server internal.
  *         content:
  *           application/json:
  *             schema:
@@ -63,123 +66,92 @@
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Internal Server Error"
+ *                   example: Internal Server Error
+ *                 error:
+ *                   type: object
  */
 
-// Get all transactions
-/**
- * @swagger
- * /transaction:
- *   get:
- *     tags:
- *       - Transaction
- *     summary: "Get all transactions"
- *     description: "Mendapatkan semua transaksi yang dilakukan oleh pengguna."
- *     responses:
- *       200:
- *         description: "Daftar transaksi berhasil diambil."
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: "Data found"
- *                 data:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Transaction'
- *       500:
- *         description: "Terjadi kesalahan internal server."
- */
 
-// Get transaction by ID
 /**
  * @swagger
- * /transaction/{id}:
- *   get:
- *     tags:
- *       - Transaction
- *     summary: "Get transaction by ID"
- *     description: "Mendapatkan informasi transaksi berdasarkan ID."
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: "ID dari transaksi"
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: "Informasi transaksi berhasil diambil."
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Transaction'
- *       404:
- *         description: "Transaksi tidak ditemukan."
- *       500:
- *         description: "Terjadi kesalahan internal server."
- */
-
-// Update transaction
-/**
- * @swagger
- * /transaction/{id}:
+ * /transaction/update/{id}:
  *   put:
+ *     summary: Perbarui status transaksi
+ *     description: Endpoint ini digunakan oleh admin untuk memperbarui status transaksi.
  *     tags:
  *       - Transaction
- *     summary: "Update transaction"
- *     description: "Memperbarui informasi transaksi berdasarkan ID."
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
- *       - in: path
- *         name: id
+ *       - name: id
+ *         in: path
  *         required: true
- *         description: "ID transaksi yang akan diperbarui."
+ *         description: ID transaksi yang ingin diperbarui.
  *         schema:
  *           type: string
- *       - in: body
- *         name: Transaction
- *         description: "Data transaksi yang akan diperbarui."
- *         required: true
- *         schema:
- *           type: object
- *           properties:
- *             status:
- *               type: string
- *               description: "Status transaksi baru"
- *               example: "completed"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 description: Status transaksi yang baru.
+ *                 enum: [pending, completed, canceled]
+ *                 example: completed
  *     responses:
  *       200:
- *         description: "Transaksi berhasil diperbarui."
+ *         description: Transaksi berhasil diperbarui.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Transaction updated successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                       example: 648f10d3d3b8c120f8eaa69d
+ *                     status:
+ *                       type: string
+ *                       example: completed
+ *       400:
+ *         description: Validasi gagal atau permintaan tidak valid.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Invalid transaction status
  *       404:
- *         description: "Transaksi tidak ditemukan."
+ *         description: Transaksi tidak ditemukan.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Transaction not found
  *       500:
- *         description: "Kesalahan internal server."
+ *         description: Kesalahan server internal.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal Server Error
+ *                 error:
+ *                   type: object
  */
 
-// Delete transaction
-/**
- * @swagger
- * /transaction/{id}:
- *   delete:
- *     tags:
- *       - Transaction
- *     summary: "Delete a transaction"
- *     description: "Menghapus transaksi berdasarkan ID."
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: "ID transaksi yang akan dihapus."
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: "Transaksi berhasil dihapus."
- *       404:
- *         description: "Transaksi tidak ditemukan."
- *       500:
- *         description: "Kesalahan internal server."
- */
