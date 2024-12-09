@@ -59,6 +59,7 @@ exports.create = async (req, res) => {
 
     res.status(201).json({ message: 'Data created', data: review });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
