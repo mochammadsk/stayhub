@@ -8,10 +8,15 @@ const fs = require('fs').promises;
 exports.getAll = async (req, res) => {
   try {
     // Check if complaint exist
-    const complaint = await Complaint.find().populate({
-      path: 'user',
-      select: 'fullName',
-    });
+    const complaint = await Complaint.find()
+      .populate({
+        path: 'user',
+        select: 'fullName',
+      })
+      .populate({
+        path: 'room',
+        select: 'name',
+      });
     if (complaint.length === 0) {
       return res.status(404).json({ message: 'Data not found' });
     }

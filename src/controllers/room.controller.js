@@ -92,6 +92,32 @@ exports.getById = async (req, res) => {
   }
 };
 
+exports.getByType = async (req, res) => {
+  try {
+    const rooms = await Room.find({ type: req.params.id })
+      .populate({
+        path: 'type',
+        populate: {
+          path: 'facility',
+          select: 'name',
+        },
+        select: 'name cost description',
+      })
+      .populate({
+        path: 'transaction',
+        select: 'status',
+      });
+
+    if (rooms.length === 0) {
+      return res.status(404).json({ message: 'Data not found' });
+    }
+
+    res.status(200).json({ message: 'Data found', data: rooms });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal Server Error', error });
+  }
+};
+
 // Create room
 exports.create = async (req, res) => {
   const { name, type } = req.body;
@@ -174,18 +200,6 @@ exports.update = async (req, res) => {
       return res
         .status(409)
         .json({ message: `Room with name ${name} already exists` });
-    }
-
-    // Check if type room exists
-    const typeRoom = await TypeRoom.findOne({ name: type });
-    if (!typeRoom) {
-      // Delete images if data not found
-      if (req.files && req.files.length > 0) {
-        await Promise.all(req.files.map((file) => fs.unlink(file.path)));
-      }
-      return res
-        .status(404)
-        .json({ message: `Data Type Room ${type} not found` });
     }
 
     // Update images

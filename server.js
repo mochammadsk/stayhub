@@ -44,8 +44,6 @@ const server = async () => {
 };
 
 // Start the server
-if (process.env.NODE_ENV !== 'production') {
-  server();
-}
+server();
 
 module.exports = app;
