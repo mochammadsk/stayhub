@@ -1,5 +1,4 @@
 const User = require('../models/user.model');
-const Room = require('../models/room.model');
 const dotenv = require('dotenv');
 const path = require('path');
 const fs = require('fs').promises;
