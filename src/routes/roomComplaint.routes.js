@@ -13,7 +13,7 @@ module.exports = (app) => {
   });
 
   // Get complaint by id
-  router.get('/:id', auth('admin'), (req, res) => {
+  router.get('/:id', auth('admin' && 'user'), (req, res) => {
     complaint.getById(req, res);
   });
 

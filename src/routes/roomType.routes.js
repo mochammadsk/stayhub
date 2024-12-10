@@ -4,7 +4,7 @@ module.exports = (app) => {
   const router = require('express').Router();
 
   // Get all
-  router.get('/', auth('admin'), (req, res) => {
+  router.get('/', (req, res) => {
     type.getAll(req, res);
   });
 
