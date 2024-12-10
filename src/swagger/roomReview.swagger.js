@@ -173,34 +173,3 @@
  *         description: "Terjadi kesalahan internal server."
  */
 
-/**
- * @swagger
- * components:
- *   schemas:
- *     Review:
- *       type: object
- *       required:
- *         - user
- *         - room
- *         - rating
- *         - comment
- *       properties:
- *         user:
- *           type: string
- *           description: "ID pengguna yang memberikan ulasan"
- *         room:
- *           type: string
- *           description: "ID kamar yang direview"
- *         rating:
- *           type: integer
- *           description: "Rating kamar (1-5)"
- *         comment:
- *           type: string
- *           description: "Komentar atau ulasan untuk kamar"
- *       example:
- *         user: "60b8d8ef5e5b5e5f7c5c5b5b"
- *         room: "60b8d8ef5e5b5e5f7c5c5b6b"
- *         rating: 4
- *         comment: "Kamar yang nyaman, sangat cocok untuk keluarga."
- */
-
