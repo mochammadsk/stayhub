@@ -48,8 +48,6 @@
  *         description: "ID keluhan"
  *         schema:
  *           type: string
- *     security:
- *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: "Keluhan berhasil diambil."
@@ -89,8 +87,6 @@
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/Complaint'
- *     security:
- *       - bearerAuth: []
  *     responses:
  *       201:
  *         description: "Keluhan berhasil dibuat."
@@ -126,8 +122,6 @@
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/Complaint'
- *     security:
- *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: "Keluhan berhasil diupdate."
@@ -157,8 +151,6 @@
  *         description: "ID keluhan"
  *         schema:
  *           type: string
- *     security:
- *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: "Keluhan berhasil dihapus."
