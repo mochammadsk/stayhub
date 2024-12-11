@@ -1,22 +1,28 @@
-// Get reviews for a room
+// Get review by ID
 /**
  * @swagger
  * /review/{id}:
  *   get:
  *     tags:
  *       - Review
- *     summary: "Get reviews for a room by ID"
- *     description: "Mengambil semua ulasan untuk sebuah kamar."
+ *     summary: "Get reviews by the logged-in user by user ID"
+ *     description: |
+ *       Mengambil semua ulasan yang dibuat oleh user yang sedang login berdasarkan ID pengguna.
+ *       Meskipun ID pengguna diberikan sebagai parameter path `{id}`, data sebenarnya
+ *       diambil berdasarkan ID pengguna yang diautentikasi dari token.
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         description: "ID dari kamar yang ingin dilihat ulasannya"
+ *         description: "ID pengguna (tidak mempengaruhi hasil karena autentikasi berbasis token)."
  *         schema:
  *           type: string
+ *           example: "64c1f2abcde123"
  *     responses:
  *       200:
- *         description: "Daftar ulasan untuk kamar berhasil diambil."
+ *         description: "Daftar ulasan berhasil diambil."
  *         content:
  *           application/json:
  *             schema:
@@ -30,11 +36,10 @@
  *                   items:
  *                     $ref: '#/components/schemas/Review'
  *       404:
- *         description: "Kamar tidak ditemukan."
+ *         description: "Tidak ada ulasan ditemukan untuk user ini."
  *       500:
  *         description: "Terjadi kesalahan internal server."
  */
-
 
 
 // Create Review
@@ -43,9 +48,11 @@
  * /review/{id}:
  *   post:
  *     tags:
- *       - Review  # Menentukan kategori "Review"
- *     summary: "Create a review for a room by Room ID"  # Deskripsi singkat endpoint
- *     description: "Membuat ulasan baru untuk kamar berdasarkan rating dan komentar yang diberikan oleh pengguna."
+ *       - Review
+ *     summary: "Create a review for a room by Room ID"
+ *     description: "Membuat ulasan baru untuk kamar berdasarkan ID kamar."
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -53,22 +60,22 @@
  *         description: "ID dari kamar yang akan direview"
  *         schema:
  *           type: string
- *       - in: body
- *         name: Review
- *         description: "Data review yang akan ditambahkan"
- *         required: true
- *         schema:
- *           type: object
- *           required:
- *             - rating
- *             - comment
- *           properties:
- *             rating:
- *               type: integer
- *               description: "Rating untuk kamar (misalnya, 1 hingga 5)"
- *             comment:
- *               type: string
- *               description: "Komentar atau ulasan untuk kamar"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - rating
+ *               - comment
+ *             properties:
+ *               rating:
+ *                 type: integer
+ *                 description: "Rating untuk kamar (1-5)"
+ *               comment:
+ *                 type: string
+ *                 description: "Komentar atau ulasan untuk kamar"
  *     responses:
  *       201:
  *         description: "Ulasan berhasil dibuat."
@@ -99,6 +106,8 @@
  *       - Review
  *     summary: "Update a review by ID"
  *     description: "Mengubah rating dan komentar pada ulasan yang sudah ada."
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -106,19 +115,19 @@
  *         description: "ID dari ulasan yang akan diubah"
  *         schema:
  *           type: string
- *       - in: body
- *         name: Review
- *         description: "Data ulasan yang akan diubah"
- *         required: true
- *         schema:
- *           type: object
- *           properties:
- *             rating:
- *               type: integer
- *               description: "Rating untuk kamar (misalnya, 1 hingga 5)"
- *             comment:
- *               type: string
- *               description: "Komentar atau ulasan untuk kamar"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               rating:
+ *                 type: integer
+ *                 description: "Rating untuk kamar (1-5)"
+ *               comment:
+ *                 type: string
+ *                 description: "Komentar atau ulasan untuk kamar"
  *     responses:
  *       200:
  *         description: "Ulasan berhasil diubah."
@@ -148,7 +157,9 @@
  *     tags:
  *       - Review
  *     summary: "Delete a review by ID"
- *     description: "Menghapus ulasan yang sudah ada."
+ *     description: "Menghapus ulasan berdasarkan ID ulasan."
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -172,4 +183,3 @@
  *       500:
  *         description: "Terjadi kesalahan internal server."
  */
-
