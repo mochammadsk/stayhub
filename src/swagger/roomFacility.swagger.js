@@ -7,6 +7,8 @@
  *       - Facility  # Menentukan bahwa endpoint ini berada di kategori "Facility"
  *     summary: "Get all facilities"
  *     description: "Mendapatkan daftar semua fasilitas kamar."
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: "Daftar fasilitas berhasil diambil."
@@ -37,6 +39,8 @@
  *       - Facility  # Menentukan bahwa endpoint ini berada di kategori "Facility"
  *     summary: "Get facility by ID"
  *     description: "Mendapatkan informasi fasilitas berdasarkan ID."
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -66,6 +70,8 @@
  *       - Facility  # Menentukan bahwa endpoint ini berada di kategori "Facility"
  *     summary: "Create a new facility"
  *     description: "Membuat fasilitas baru."
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -98,6 +104,8 @@
  *       - Facility  # Menentukan bahwa endpoint ini berada di kategori "Facility"
  *     summary: "Update facility by ID"
  *     description: "Memperbarui fasilitas berdasarkan ID."
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -138,6 +146,8 @@
  *       - Facility  # Menentukan bahwa endpoint ini berada di kategori "Facility"
  *     summary: "Delete facility by ID"
  *     description: "Menghapus fasilitas berdasarkan ID."
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -167,6 +177,8 @@
  *       - Facility  # Menentukan bahwa endpoint ini berada di kategori "Facility"
  *     summary: "Delete all facilities"
  *     description: "Menghapus semua fasilitas."
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: "Semua fasilitas berhasil dihapus."
