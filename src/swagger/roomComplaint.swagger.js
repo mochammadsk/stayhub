@@ -39,6 +39,8 @@
  *       - Complaint
  *     summary: "Get complaint by ID"
  *     description: "Mendapatkan informasi keluhan berdasarkan ID. Admin atau pengguna yang membuat keluhan dapat mengaksesnya."
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -72,6 +74,8 @@
  *       - Complaint
  *     summary: "Create a new complaint"
  *     description: "Membuat keluhan baru terkait dengan kamar yang diberikan."
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -107,6 +111,8 @@
  *       - Complaint
  *     summary: "Update complaint by ID"
  *     description: "Mengupdate keluhan berdasarkan ID. Hanya pengguna yang membuat keluhan atau admin yang dapat mengupdate."
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -142,6 +148,8 @@
  *       - Complaint
  *     summary: "Delete complaint by ID"
  *     description: "Menghapus keluhan berdasarkan ID. Hanya pengguna yang membuat keluhan atau admin yang dapat menghapus."
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
