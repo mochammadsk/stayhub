@@ -66,8 +66,6 @@
  *     - Room  # Ini menentukan bahwa endpoint ini berada di kategori "Room"
  *   summary: "Get room by type"
  *   description: "Mendapatkan daftar kamar berdasarkan tipe."
- *   security:
- *     - bearerAuth: []
  *   parameters:
  *     - in: path
  *       name: id
