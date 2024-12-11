@@ -70,7 +70,7 @@
 
 /**
  * @swagger
- * /auth/verify/{token}:
+ * /auth/verify-email/{token}:
  *   get:
  *     tags:
  *       - Auth
@@ -92,17 +92,29 @@
 
 /**
  * @swagger
- * /auth/forgot-password:
+ * /auth/request-reset-password:
  *   post:
  *     tags:
  *       - Auth
- *     summary: Forgot password
+ *     summary: Request reset password
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: mochrul.kurniawan@gmail.com
+ *                 required: true
+ *     responses:
+ *       200:
+ *         description: Reset password request sent successfully
+ *       400:
+ *         description: Invalid email address
+ *       500:
+ *         description: Internal Server Error
  */
 
 /**
@@ -131,9 +143,9 @@
  *                 required: true
  *     responses:
  *       200:
- *         description: Reset password Successfully
- *       404:
- *         description: Reset password Failed
+ *         description: Reset password successfully
+ *       400:
+ *         description: Invalid token or password
  *       500:
  *         description: Internal Server Error
  */
