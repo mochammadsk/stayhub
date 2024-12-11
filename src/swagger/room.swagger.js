@@ -103,6 +103,8 @@
  *       - Room  # Ini menentukan bahwa endpoint ini berada di kategori "Room"
  *     summary: "Get room by user ID"
  *     description: "Mendapatkan daftar kamar berdasarkan ID pengguna."
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -184,6 +186,8 @@
  *       - Room  # Ini menentukan bahwa endpoint ini berada di kategori "Room"
  *     summary: "Update room by ID"
  *     description: "Memperbarui informasi kamar berdasarkan ID."
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -225,6 +229,8 @@
  *       - Room  # Ini menentukan bahwa endpoint ini berada di kategori "Room"
  *     summary: "Delete room by ID"
  *     description: "Menghapus kamar berdasarkan ID."
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -250,6 +256,8 @@
  *       - Room  # Ini menentukan bahwa endpoint ini berada di kategori "Room"
  *     summary: "Delete all rooms"
  *     description: "Menghapus semua kamar."
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: "Semua kamar berhasil dihapus."

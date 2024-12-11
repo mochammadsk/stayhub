@@ -11,7 +11,7 @@ const reviewSchema = new mongoose.Schema(
     rating: {
       type: Number,
       required: true,
-      min: 0,
+      min: 1,
       max: 5,
       validate: {
         validator: Number.isInteger,

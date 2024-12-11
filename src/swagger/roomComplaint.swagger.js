@@ -39,6 +39,8 @@
  *       - Complaint
  *     summary: "Get complaint by ID"
  *     description: "Mendapatkan informasi keluhan berdasarkan ID. Admin atau pengguna yang membuat keluhan dapat mengaksesnya."
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -46,8 +48,6 @@
  *         description: "ID keluhan"
  *         schema:
  *           type: string
- *     security:
- *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: "Keluhan berhasil diambil."
@@ -72,6 +72,8 @@
  *       - Complaint
  *     summary: "Create a new complaint"
  *     description: "Membuat keluhan baru terkait dengan kamar yang diberikan."
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -85,8 +87,6 @@
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/Complaint'
- *     security:
- *       - bearerAuth: []
  *     responses:
  *       201:
  *         description: "Keluhan berhasil dibuat."
@@ -107,6 +107,8 @@
  *       - Complaint
  *     summary: "Update complaint by ID"
  *     description: "Mengupdate keluhan berdasarkan ID. Hanya pengguna yang membuat keluhan atau admin yang dapat mengupdate."
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -120,8 +122,6 @@
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/Complaint'
- *     security:
- *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: "Keluhan berhasil diupdate."
@@ -142,6 +142,8 @@
  *       - Complaint
  *     summary: "Delete complaint by ID"
  *     description: "Menghapus keluhan berdasarkan ID. Hanya pengguna yang membuat keluhan atau admin yang dapat menghapus."
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -149,8 +151,6 @@
  *         description: "ID keluhan"
  *         schema:
  *           type: string
- *     security:
- *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: "Keluhan berhasil dihapus."

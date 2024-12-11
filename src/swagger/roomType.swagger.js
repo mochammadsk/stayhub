@@ -31,12 +31,14 @@
 // Get one type room
 /**
  * @swagger
- * /type{id}:
+ * /type/{id}:
  *   get:
  *     tags:
  *       - TypeRoom  # Menentukan kategori "TypeRoom"
  *     summary: "Get type room by ID"
  *     description: "Mendapatkan informasi jenis kamar berdasarkan ID."
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -66,6 +68,8 @@
  *       - TypeRoom  # Menentukan kategori "TypeRoom"
  *     summary: "Create a new type room"
  *     description: "Membuat jenis kamar baru dengan nama, fasilitas, deskripsi, dan biaya."
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -120,6 +124,8 @@
  *       - TypeRoom  # Menentukan kategori "TypeRoom"
  *     summary: "Update an existing type room"
  *     description: "Memperbarui data jenis kamar berdasarkan ID."
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -172,6 +178,8 @@
  *       - TypeRoom  # Menentukan kategori "TypeRoom"
  *     summary: "Delete a type room by ID"
  *     description: "Menghapus jenis kamar berdasarkan ID."
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -197,6 +205,8 @@
  *       - TypeRoom  # Menentukan kategori "TypeRoom"
  *     summary: "Delete all type rooms"
  *     description: "Menghapus semua jenis kamar."
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: "Semua jenis kamar berhasil dihapus."
