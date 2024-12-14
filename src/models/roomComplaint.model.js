@@ -23,6 +23,10 @@ const complaintSchema = new mongoose.Schema(
         filename: { type: String, required: true },
       },
     ],
+    response: {
+      type: String,
+      default: "",
+    },
   },
   {
     timestamps: true,

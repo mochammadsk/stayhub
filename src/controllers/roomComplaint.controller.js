@@ -174,6 +174,30 @@ exports.updateStatus = async (req, res) => {
   }
 };
 
+// Update response complaint by id
+exports.updateResponse = async (req, res) => {
+  const { id } = req.params;
+  const { response } = req.body;
+  // Search for complaints by ID
+  try {
+    const complaint = await Complaint.findById(id);
+    if (!complaint) {
+      return res.status(404).json({ message: "Complaint not found" });
+    }
+    // Update complaint response
+    complaint.response = response;
+    
+    // Save complaint response
+    await complaint.save();
+
+    // Send response successful
+    return res.status(200).json({ message: "Response updated successfully", complaint });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error, failed to update response" });
+  }
+};
+
 // Delete complaint by id
 exports.deleteById = async (req, res) => {
   try {

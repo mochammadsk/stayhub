@@ -32,6 +32,11 @@ module.exports = (app) => {
     complaint.updateStatus(req, res);
   });
 
+  // Update response complaint by id
+  router.put("/response/:id", auth("admin"), (req, res) => {
+    complaint.updateResponse(req, res);
+  });
+
   // Delete complaint by id
   router.delete("/:id", auth("user"), (req, res) => {
     complaint.deleteById(req, res);
