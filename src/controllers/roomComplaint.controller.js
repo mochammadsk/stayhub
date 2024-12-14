@@ -73,12 +73,12 @@ exports.create = async (req, res) => {
     }
 
     // Upload images
-    const images = req.files.complaintImages
-      ? req.files.complaintImages.map((file) => ({
-          url: path.join('images/complaint', file.filename),
-          filename: file.filename,
-        }))
-      : [];
+    // const images = req.files.complaintImages
+    //   ? req.files.complaintImages.map((file) => ({
+    //       url: path.join('images/complaint', file.filename),
+    //       filename: file.filename,
+    //     }))
+    //   : [];
 
     // Create complaint
     const complaint = new Complaint({
@@ -86,7 +86,7 @@ exports.create = async (req, res) => {
       room: room._id,
       title,
       description,
-      images,
+      // images,
     });
 
     // Save data complaint
@@ -142,6 +142,35 @@ exports.update = async (req, res) => {
     res.status(200).json({ message: 'Data updated', data: complaint });
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error });
+  }
+};
+
+// Update status complaint by id
+exports.updateStatus = async (req, res) => {
+  const { status } = req.body; 
+  try {
+  //  Validate the received status
+    if (!['Menunggu', 'Selesai'].includes(status)) {
+      return res.status(400).json({ message: "Invalid status value" });
+    }
+
+    // Search for complaints by ID
+    const complaint = await Complaint.findById(req.params.id);
+    if (!complaint) {
+      return res.status(404).json({ message: "Complaint not found" });
+    }
+
+    // Update complaint status
+    complaint.status = status;
+
+  //  save complaint status
+    await complaint.save();
+
+    // Send response successful
+    res.status(200).json({ message: "Status updated successfully", data: complaint });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal Server Error", error });
   }
 };
 
