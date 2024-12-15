@@ -8,7 +8,7 @@ dotenv.config();
 const db = {
   url:
     process.env.NODE_ENV === 'production'
-      ? process.env.DB_CLOUD_URI
+      ? process.env.DB_PRODUCTZILLA_URI
       : process.env.DB_LOCAL_URI,
 };
 
@@ -18,7 +18,7 @@ const connectDB = async () => {
     await mongoose.connect(db.url, {});
     console.log(
       `Connected to ${
-        process.env.NODE_ENV === 'production' ? 'cloud' : 'local'
+        process.env.NODE_ENV === 'production' ? 'ProductZilla' : 'local'
       } database!`
     );
   } catch (error) {
