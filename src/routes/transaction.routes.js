@@ -13,5 +13,10 @@ module.exports = (app) => {
     transaction.update(req, res);
   });
 
+  // Get transaction
+  router.get('/get', auth('admin'), (req, res) => {
+    transaction.getAllTransactions(req, res);
+  });
+
   app.use('/transaction', router);
 };
