@@ -17,13 +17,13 @@ app.use(express.json());
 userRoutes(app);
 
 describe('User Routes Test', () => {
-  test('GET /user/profile should return 200', async () => {
+  it('GET /user/profile should return 200', async () => {
     const response = await request(app).get('/user/profile');
     expect(response.status).toBe(200);
     expect(response.body.message).toBe('Data found');
   });
 
-  test('PUT /user/profile/update should return 200', async () => {
+  it('PUT /user/profile/update should return 200', async () => {
     const response = await request(app)
       .put('/user/profile/update')
       .send({ fullName: 'Updated Name', phone: 9876543210 });
@@ -32,7 +32,7 @@ describe('User Routes Test', () => {
     expect(response.body.message).toBe('Profile updated successfully');
   });
 
-  test('DELETE /user/profile/update should return 200', async () => {
+  it('DELETE /user/profile/update should return 200', async () => {
     const response = await request(app).delete('/user/profile/update');
     expect(response.status).toBe(200);
     expect(response.body.message).toBe('Profile updated successfully');
