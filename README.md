@@ -1,4 +1,4 @@
-# **StayHub**
+# **StayHub 🏠**
 
 ---
 
@@ -7,7 +7,7 @@
 - **User Authentication**: Use JWT.
 - **Role-based Authorization**: `admin` and `user`.
 - **CRUD Operations**:
-- **Payment Gateway Integration**: Terhubung dengan Midtrans.
+- **Payment Gateway Integration**: Connect with Midtrans.
 - **Email Service**: Register account and forgot password.
 
 ---
@@ -17,8 +17,7 @@
 - **Runtime**: Node.js
 - **Framework**: Express.js
 - **Database**: MongoDB
-- **Cloud Services**:
-  - Midtrans (Payment Gateway)
+- **Cloud Services**: Midtrans (Payment Gateway)
 - **Other**: Swagger (API Documentation), Vercel (Deploy)
 
 ---
@@ -41,16 +40,16 @@
    ```bash
    npm install
    ```
-3. Set up environment variables dengan membuat file `.env` di root project (lihat [Environment Variables](#environment-variables)).
+3. Set up environment variables by creating a `.env` file in root project.
 
 ### **Running the App**
 
 - **Development**:
+
   ```bash
-  npm run dev
-  or
-  nodemon
+    nodemon
   ```
+
 - **Production**:
   ```bash
   npm run start
@@ -58,7 +57,7 @@
 
 ### **Testing**
 
-Untuk menjalankan tes:
+To run the test
 
 ```bash
 npm run test
@@ -78,11 +77,11 @@ Create `.env` file in root directory and adjust to
 
 ## **API Documentation**
 
-Dokumentasi API dibuat menggunakan **Swagger**.
+API documentation is created using **Swagger**.
 
 ### **Akses Dokumentasi API**
 
-Setelah server dijalankan, buka [http://localhost:8000/api-docs](http://localhost:3000/api-docs).
+Once the server is running, open it [http://localhost:8000/api-docs](http://localhost:8000/api-docs).
 
 ---
 

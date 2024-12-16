@@ -12,8 +12,10 @@ const complaintSchema = new mongoose.Schema(
     description: { type: String, required: true },
     status: {
       type: String,
-      default: 'pending',
-      enum: ['pending', 'in progress', 'follow up', 'resolved', 'cancelled'],
+      // default: 'pending',
+      // enum: ['pending', 'in progress', 'follow up', 'resolved', 'cancelled'],
+      default: 'Menunggu',
+      enum: ['Menunggu', 'Selesai'],
     },
     images: [
       {
@@ -21,6 +23,10 @@ const complaintSchema = new mongoose.Schema(
         filename: { type: String, required: true },
       },
     ],
+    response: {
+      type: String,
+      default: '',
+    },
   },
   {
     timestamps: true,
