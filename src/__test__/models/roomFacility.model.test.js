@@ -34,4 +34,34 @@ describe('FacilityRoom Model Test', () => {
     expect(savedFacility._id).toBeDefined();
     expect(savedFacility.name).toBe('Facility A');
   });
+
+   // Add toJSON testing
+   describe('toJSON Method', () => {
+    it('should modify the output of toJSON method', async () => {
+      // Mock instance of FacilityRoom
+      const facilityRoom = new FacilityRoom({
+        _id: '507f191e810c19729de860ea',
+        name: 'Facility A',
+      });
+
+      // Mock the toObject method from Mongoose
+      facilityRoom.toObject = jest.fn().mockReturnValue({
+        _id: '507f191e810c19729de860ea',
+        name: 'Facility A',
+        __v: 0,
+      });
+
+      // Call the toJSON method
+      const jsonFacilityRoom = facilityRoom.toJSON();
+
+      // Assertions
+      expect(jsonFacilityRoom.id).toBeDefined();
+      expect(jsonFacilityRoom.__v).toBeUndefined();
+      expect(jsonFacilityRoom._id).toBeUndefined();
+      expect(jsonFacilityRoom.name).toBe('Facility A');
+
+      // Ensure toObject is called
+      expect(facilityRoom.toObject).toHaveBeenCalled();
+    });
+  });
 });

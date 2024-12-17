@@ -34,4 +34,40 @@ describe('Review Model Test', () => {
     expect(savedReview.rating).toBe(5);
     expect(savedReview.comment).toBe('Excellent room!');
   });
+
+  // Tambahan pengujian toJSON method
+  describe('toJSON Method', () => {
+    it('should modify the output of toJSON method', async () => {
+      // Mock instance of Review
+      const review = new Review({
+        _id: '507f191e810c19729de860ea',
+        rating: 5,
+        comment: 'Good!',
+        user: '123',
+      });
+
+      // Mock the toObject method from Mongoose
+      review.toObject = jest.fn().mockReturnValue({
+        _id: '507f191e810c19729de860ea',
+        rating: 5,
+        comment: 'Good!',
+        user: '123',
+        __v: 0,
+      });
+
+      // Panggil metode toJSON
+      const jsonReview = review.toJSON();
+
+      // Assertions
+      expect(jsonReview.id).toBeDefined();
+      expect(jsonReview.__v).toBeUndefined();
+      expect(jsonReview._id).toBeUndefined();
+      expect(jsonReview.rating).toBe(5);
+      expect(jsonReview.comment).toBe('Good!');
+      expect(jsonReview.user).toBe('123');
+
+      // Pastikan toObject dipanggil
+      expect(review.toObject).toHaveBeenCalled();
+    });
+  });
 });

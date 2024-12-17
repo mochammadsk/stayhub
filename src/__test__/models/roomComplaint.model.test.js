@@ -3,7 +3,7 @@ const Complaint = require('../../models/roomComplaint.model');
 
 describe('Room Complaint Model Test', () => {
   beforeAll(async () => {
-    mongoose.connect('mongodb://localhost:27017/stayhub', {
+    await mongoose.connect('mongodb://localhost:27017/stayhub', {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
@@ -39,5 +39,34 @@ describe('Room Complaint Model Test', () => {
     const savedComplaint = await complaint.save();
     expect(savedComplaint._id).toBeDefined();
     expect(savedComplaint.title).toBe('AC Not Working');
+  });
+
+  // Tambahan pengujian toJSON method
+  describe('toJSON Method', () => {
+    it('should modify the output of toJSON method', async () => {
+      // Membuat instance dari Complaint
+      const complaint = new Complaint({
+        _id: new mongoose.Types.ObjectId('507f191e810c19729de860ea'),
+        user: new mongoose.Types.ObjectId(),
+        room: new mongoose.Types.ObjectId(),
+        title: 'AC Not Working',
+        description: 'The air conditioner is broken.',
+        status: 'Menunggu',
+      });
+
+      // Simpan ke database
+      await complaint.save();
+
+      // Panggil metode toJSON
+      const jsonComplaint = complaint.toJSON();
+
+      // Assertions
+      expect(jsonComplaint.id).toBeDefined(); // _id menjadi id
+      expect(jsonComplaint._id).toBeUndefined(); // _id harus dihapus
+      expect(jsonComplaint.__v).toBeUndefined(); // __v harus dihapus
+      expect(jsonComplaint.title).toBe('AC Not Working');
+      expect(jsonComplaint.description).toBe('The air conditioner is broken.');
+      expect(jsonComplaint.status).toBe('Menunggu');
+    });
   });
 });

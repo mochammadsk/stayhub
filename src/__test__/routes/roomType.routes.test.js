@@ -9,11 +9,15 @@ jest.mock('../../controllers/roomType.controller', () => ({
   create: jest.fn((req, res) => res.status(201).json({ messages: 'Data created' })),
   update: jest.fn((req, res) => res.status(200).json({ message: 'Data updated' })),
   deleteById: jest.fn((req, res) => res.status(200).json({ message: 'Data deleted' })),
-  deleteAll: jest.fn((req, res) => res.status(200).json({ message: 'Data deleted' })),
+  deleteAll: jest.fn((req, res) => res.status(200).json({ message: 'All data deleted' })),
 }));
 
+// Mock the auth middleware
 jest.mock('../../middelware/auth.middleware', () => ({
-  auth: () => (req, res, next) => next(),
+  auth: jest.fn((role) => (req, res, next) => {
+    req.user = { role }; // Simulating the user role based on the route
+    next(); // Call next to pass control to the next middleware
+  }),
 }));
 
 app.use(express.json());
@@ -58,5 +62,15 @@ describe('TypeRoom Routes Test', () => {
     const response = await request(app).delete('/type/delete/1');
     expect(response.status).toBe(200);
     expect(response.body.message).toBe('Data deleted');
+  });
+
+  // Add a test for DELETE /type/delete route to ensure it is covered
+  it('DELETE /type/delete should return 200 and call auth middleware', async () => {
+    const response = await request(app).delete('/type/delete');
+    expect(response.status).toBe(200);
+    expect(response.body.message).toBe('All data deleted');
+
+    // Verify auth middleware was called with the correct role
+    expect(require('../../middelware/auth.middleware').auth).toHaveBeenCalledWith('admin');
   });
 });

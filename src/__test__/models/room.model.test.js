@@ -27,16 +27,22 @@ describe('Room Model Test', () => {
     }
   });
 
-  it('should save successfully if all fields are valid', async () => {
-    const room = new Room({
-      name: 'Room A',
-      status: 'available',
-      type: [new mongoose.Types.ObjectId()],
-      images: [{ url: 'images/rooms/image1.jpg', filename: 'image1.jpg' }],
-    });
+  describe('toJSON Method', () => {
+    it('should modify the output of toJSON method', async () => {
+      const room = new Room({
+        name: 'Room A',
+        status: 'available',
+        type: [new mongoose.Types.ObjectId()],
+        images: [{ url: 'images/rooms/image1.jpg', filename: 'image1.jpg' }],
+      });
 
-    const savedRoom = await room.save();
-    expect(savedRoom._id).toBeDefined();
-    expect(savedRoom.name).toBe('Room A');
-  });
+      await room.save();
+      const savedRoom = await room.toJSON();
+
+      expect(savedRoom.id).toBeDefined();
+      expect(savedRoom.__v).toBeUndefined();
+      expect(savedRoom.name).toBe('Room A');
+      expect(savedRoom.status).toBe('available');
+    });
+  })
 });

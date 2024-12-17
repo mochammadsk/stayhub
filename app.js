@@ -74,8 +74,8 @@ require('./src/routes/transaction.routes')(app);
 require('./src/routes/midtrans.routes')(app);
 
 // For testing only
-app.get('/', (_req, res) => {
-  res.send('StayHub API');
-});
+// app.get('/', (_req, res) => {
+//   res.send('StayHub API');
+// });
 
 module.exports = app;

@@ -39,4 +39,43 @@ describe('TypeRoom Model Test', () => {
     expect(savedTypeRoom._id).toBeDefined();
     expect(savedTypeRoom.name).toBe('Deluxe');
   });
+
+  // Tambahan pengujian toJSON method
+  describe('toJSON Method', () => {
+    it('should modify the output of toJSON method', async () => {
+      // Mock instance of TypeRoom
+      const typeRoom = new TypeRoom({
+        _id: '507f191e810c19729de860ea',
+        name: 'Deluxe',
+        description: 'Spacious room with amenities',
+        cost: 100,
+        facility: ['1', '2'],
+      });
+
+      // Mock the toObject method from Mongoose
+      typeRoom.toObject = jest.fn().mockReturnValue({
+        _id: '507f191e810c19729de860ea',
+        name: 'Deluxe',
+        description: 'Spacious room with amenities',
+        cost: 100,
+        facility: ['1', '2'],
+        __v: 0,
+      });
+
+      // Panggil metode toJSON
+      const jsonTypeRoom = typeRoom.toJSON();
+
+      // Assertions
+      expect(jsonTypeRoom.id).toBeDefined();
+      expect(jsonTypeRoom.__v).toBeUndefined();
+      expect(jsonTypeRoom._id).toBeUndefined();
+      expect(jsonTypeRoom.name).toBe('Deluxe');
+      expect(jsonTypeRoom.description).toBe('Spacious room with amenities');
+      expect(jsonTypeRoom.cost).toBe(100);
+      expect(jsonTypeRoom.facility).toEqual(['1', '2']);
+
+      // Pastikan toObject dipanggil
+      expect(typeRoom.toObject).toHaveBeenCalled();
+    });
+  });
 });
