@@ -28,6 +28,7 @@ app.use(
       'http://localhost:5173',
       'https://stayhub-api.vercel.app',
       'https://kost-stayhub.vercel.app',
+      'https://stayhub-frontend.vercel.app',
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: [
